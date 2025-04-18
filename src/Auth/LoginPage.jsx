@@ -1,5 +1,6 @@
 import React from 'react'
 import vid from "/images/vid.mp4"; // Import the video file
+import { Link } from 'react-router';
 
 const LoginPage = () => {
   return (
@@ -24,12 +25,14 @@ const LoginPage = () => {
               type="password"
               placeholder="Password"
             />
-            <button
+  <button
               type="submit"
               className="w-full max-w-md px-5 py-3 md:py-4 lg:py-5 bg-red-800 mt-6 rounded-full text-white hover:bg-red-600 text-lg md:text-xl lg:text-2xl font-bold cursor-pointer"
             >
-              Login
+            <Link to='/product' >  Login</Link>
             </button>
+          
+
             <p className="text-lg md:text-xl lg:text-2xl my-5">or login with</p>
             <button
               type="button"

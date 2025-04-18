@@ -1,7 +1,7 @@
 import React from "react";
 import img from "/images/car.png"; // Import the overlay image
 import { Link } from "react-router"; // Use the original react-router Link
-
+import happy from "/images/happy.png"; // Import the happy image
 const LandingPage = () => {
   return (
     <>
@@ -48,6 +48,23 @@ const LandingPage = () => {
             className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-3/7 w-1/2 sm:w-1/5 md:w-5/12 lg:w-6/12 xl:w-4/12 h-auto max-w-full object-contain z-20"
           />
         </div>
+      </section>
+      <section className="h-screen w-full flex flex-col items center md:flex-row items-center justify-center p-9 md:p-8 lg:p-16" >
+        <div className="flex flex-col justify-center items-center w-full mt-20 md:w-6/6 bg-white p-9 md:p-8 lg:p-16">
+          <h1 className="font-[MuseoModerno] text-2xl sm:text-4xl md:text-3xl lg:text-6xl font-bold text-center mb-4">
+            Experience the excitement of the auction floor, <span className="text-green-900">online.</span>
+          </h1>
+          <img src={happy} width="700" alt="" />
+          <h1 className="font-[MuseoModerno] text-2xl sm:text-4xl md:text-3xl lg:text-4xl font-bold text-center mb-4">
+            Join the auctions  <span className="text-green-900">now</span>
+          </h1>
+          <Link to="/signup">
+                <button className="font-[MuseoModerno] font-bold cursor-pointer text-white text-2xl w-24 sm:w-32 md:w-28 lg:w-36 xl:w-40 h-10 sm:h-12 md:h-11 lg:h-14 xl:h-16 bg-green-800 rounded-full z-30">
+                  Signup
+                </button>
+              </Link>
+        </div>
+       
       </section>
     </>
   );
