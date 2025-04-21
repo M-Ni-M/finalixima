@@ -1,18 +1,18 @@
 import React from "react";
-// import img from "./components/bag.png";
-// import { Link } from "react-router";
 import Nav from "../components/Nav";
 import Carousel from "../components/Carousel";
 
-export const ProductDetail = () => {
+export const BidderPage = () => {
   return (
     <>
       <Nav />
       <section className="w-full h-screen flex items-center bg-[#F2F2F2] pt-[4vh] gap-5 px-5">
+        {/* Left Section: Product Image Carousel */}
         <div className="w-[40vw] h-[70vh] flex items-center justify-center rounded-2xl bg-gray-600">
           <Carousel />
         </div>
 
+        {/* Middle Section: Product Details */}
         <div className="flex flex-col w-[30%] min-h-[70vh] rounded-2xl border bg-white border-gray-300 shadow-2xl">
           <div className="w-full h-18 flex font-[MuseoModerno] text-xl font-bold items-center border-b-2 border-gray-300 px-5">
             Product Details
@@ -38,21 +38,21 @@ export const ProductDetail = () => {
           </ul>
         </div>
 
-        <div className="flex flex-col w-[30%] min-h-[70vh] rounded-2xl bg-white font-[MuseoModerno] border border-gray-300 shadow-2xl ">
+        {/* Right Section: Auction Information and Bid Input */}
+        <div className="flex flex-col w-[30%] min-h-[70vh] rounded-2xl bg-white font-[MuseoModerno] border border-gray-300 shadow-2xl">
           <div className="w-full h-18 flex font-[MuseoModerno] text-xl font-bold items-center border-b-2 border-gray-300 px-5">
             Auction Information
           </div>
           <div className="space-y-0.5 p-5 text-l flex flex-col gap-5">
             <p>
-              <strong>Status:</strong> Upcoming
+              <strong>Status:</strong> Active
             </p>
-           
             <p>
-              <strong>No. of Bids:</strong> 0
+              <strong>No. of Bids:</strong> 5
             </p>
             <p>
               <strong>Time left:</strong>{" "}
-              <span className="text-red-600 font-semibold">12D 3H 15min</span>{" "}
+              <span className="text-red-600 font-semibold">12D 3H 15min</span>
             </p>
             <p>
               <strong>Current price:</strong>{" "}
@@ -60,20 +60,32 @@ export const ProductDetail = () => {
             </p>
             <p>
               <strong>Current bidder:</strong>{" "}
-              {/* <span>McKay</span> */}
+              <span>McKay</span>
             </p>
             <div>
-  
-            <button className="w-full py-3 font-bold bg-yellow-500 rounded-md hover:bg-yellow-600">
-Start Auction            </button>
-            <p className="text-xs text-gray-600 pt-2">
-              All bids are legally binding and all sales are final.
-            </p>
+              <label htmlFor="bidAmount" className="block text-sm font-medium">
+                Enter your bid amount ($):
+              </label>
+              <input
+                type="number"
+                id="bidAmount"
+                placeholder="Enter amount"
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
+              />
+              <button
+                className="w-full py-3 mt-3 font-bold bg-yellow-500 rounded-md hover:bg-yellow-600 cursor-pointer"
+              >
+                Submit Bid
+              </button>
+              <p className="text-xs text-gray-600 pt-2">
+                All bids are legally binding and all sales are final.
+              </p>
             </div>
           </div>
-        </div>{" "}
+        </div>
       </section>
     </>
   );
 };
-export default ProductDetail;
+
+export default BidderPage;

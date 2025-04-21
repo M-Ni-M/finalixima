@@ -5,6 +5,9 @@ import SignupPage from "./Auth/SignupPage";
 import LandingPage from "./pages/LandingPage";
 import ProductPage from "./pages/ProductPage";
 import ProductDetail from "./pages/ProductDetail";
+import DashboardPage from "./pages/DashboardPage";
+import PurchasePage from "./pages/PurchasePage";
+import BidderPage from "./pages/BidderPage";
 
 function App() {
   return (
@@ -16,6 +19,10 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/product" element={<ProductPage />} />
           <Route path="/detail" element={<ProductDetail />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/purchases" element={<PurchasePage />} />
+          <Route path="/bidder" element={<BidderPage />} />
+
         </Routes>
       </BrowserRouter>
     </>
