@@ -12,6 +12,8 @@ import VerificationPage from "./pages/VerificationPage";
 import VerifyEmailPage from "./Auth/verifyPage";
 import ProtectedRoute from "./protectedRoute";
 import GoogleCallback from "./Auth/GoogleCallback";
+import ResetPassword from "./Auth/resetPassword";
+import ForgotPassword from "./Auth/forgetPassword";
 
 function App() {
   return (
@@ -24,33 +26,51 @@ function App() {
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
           <Route path="/auth/callback" element={<GoogleCallback />} />
-          
+          <Route path="/forgot-password" element={<ForgotPassword />} />
+          <Route path="/reset-password/:token" element={<ResetPassword />} />
+          <Route path="/api/v1/reset-password/:token" element={<ResetPassword />} />
+
           {/* Protected Routes */}
-          <Route path="/product" element={
-            <ProtectedRoute>
-              <ProductPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/detail" element={
-            <ProtectedRoute>
-              <ProductDetail />
-            </ProtectedRoute>
-          } />
-          <Route path="/dashboard" element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          } />
-          <Route path="/purchases" element={
-            <ProtectedRoute>
-              <PurchasePage />
-            </ProtectedRoute>
-          } />
-          <Route path="/bidder" element={
-            <ProtectedRoute>
-              <BidderPage />
-            </ProtectedRoute>
-          } />
+          <Route
+            path="/product"
+            element={
+              <ProtectedRoute>
+                <ProductPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/detail"
+            element={
+              <ProtectedRoute>
+                <ProductDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/purchases"
+            element={
+              <ProtectedRoute>
+                <PurchasePage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/bidder"
+            element={
+              <ProtectedRoute>
+                <BidderPage />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </>
