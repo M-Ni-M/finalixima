@@ -11,6 +11,7 @@ import BidderPage from "./pages/BidderPage";
 import VerificationPage from "./pages/VerificationPage";
 import VerifyEmailPage from "./Auth/verifyPage";
 import ProtectedRoute from "./protectedRoute";
+import GoogleCallback from "./Auth/GoogleCallback";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           <Route path="/verify-email" element={<VerifyEmailPage />} />
+          <Route path="/auth/callback" element={<GoogleCallback />} />
           
           {/* Protected Routes */}
           <Route path="/product" element={

@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link, useNavigate } from "react-router-dom";
-import { apiLogin } from "../services/auth";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { apiLogin, handleGoogleCallback, initiateGoogleAuth } from "../services/auth";
 import vid from "/images/vid.mp4"; // Ensure this path is correct
 
 const LoginPage = () => {
@@ -12,7 +12,25 @@ const LoginPage = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
+
+  // Handle Google OAuth callback
+  useEffect(() => {
+    // Check if this is a callback from Google OAuth
+    const urlParams = new URLSearchParams(location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      handleGoogleCallback(token);
+      navigate('/product', { replace: true });
+      toast.success("Login successful!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored",
+      });
+    }
+  }, [location, navigate]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -105,6 +123,10 @@ const LoginPage = () => {
     }
   };
 
+  const handleGoogleLogin = () => {
+    initiateGoogleAuth();
+  };
+
   return (
     <>
       <ToastContainer />
@@ -158,6 +180,7 @@ const LoginPage = () => {
             <p className="text-lg md:text-xl lg:text-xl my-3">or login with</p>
             <button
               type="button"
+              onClick={handleGoogleLogin}
               className="w-full max-w-md px-5 py-3 md:py-4 lg:py-3 bg-blue-800 rounded-full text-white hover:bg-blue-600 text-lg md:text-xl lg:text-xl font-bold cursor-pointer"
             >
               Google

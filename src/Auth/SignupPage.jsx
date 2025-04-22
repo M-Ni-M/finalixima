@@ -1,8 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link, useNavigate } from "react-router-dom";
-import { apiSignup } from "../services/auth";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { apiSignup, handleGoogleCallback, initiateGoogleAuth } from "../services/auth";
 import vid from "/images/vid.mp4";
 
 const SignupPage = () => {
@@ -14,7 +14,25 @@ const SignupPage = () => {
   });
 
   const navigate = useNavigate();
+  const location = useLocation();
   const [loading, setLoading] = useState(false);
+
+  // Handle Google OAuth callback
+  useEffect(() => {
+    // Check if this is a callback from Google OAuth
+    const urlParams = new URLSearchParams(location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+      handleGoogleCallback(token);
+      navigate('/product', { replace: true });
+      toast.success("Signup successful!", {
+        position: "top-center",
+        autoClose: 3000,
+        theme: "colored",
+      });
+    }
+  }, [location, navigate]);
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -87,6 +105,10 @@ const SignupPage = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleGoogleSignup = () => {
+    initiateGoogleAuth();
   };
 
   return (
@@ -167,6 +189,7 @@ const SignupPage = () => {
 
             <button
               type="button"
+              onClick={handleGoogleSignup}
               className="w-full max-w-sm px-4 py-2 md:py-3 lg:py-3 bg-blue-800 rounded-full text-white hover:bg-blue-600 text-base md:text-lg lg:text-xl font-bold cursor-pointer"
               disabled={loading}
             >
