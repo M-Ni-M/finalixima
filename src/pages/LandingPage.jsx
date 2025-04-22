@@ -34,10 +34,10 @@ const LandingPage = () => {
 
           {/* Text Overlay */}
           <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-black text-center z-10">
-            <h1 className="text-[22vw] sm:text-[19vw] md:text-[15vw] lg:text-[13vw] xl:text-[19vw] font-[Seasons-Regular]">
+            <h1 className="text-[22vw] sm:text-[19vw] md:text-[15vw] lg:text-[23vw] xl:text-[19vw] font-[Seasons-Regular]">
               finalixima
             </h1>
-            <h2 className="mt-8 font-[MuseoModerno] font-bold text-[8vw] sm:text-[6vw] md:text-[5vw] lg:text-[3vw] xl:text-[4vw]">
+            <h2 className="mt-8 font-[MuseoModerno] font-bold text-[8vw] sm:text-[6vw] md:text-[6vw] lg:text-[5vw] xl:text-[4vw]">
               Ready, Set, <span className="text-red-800">Bid</span>!
             </h2>
           </div>

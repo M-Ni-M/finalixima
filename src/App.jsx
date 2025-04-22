@@ -8,6 +8,7 @@ import ProductDetail from "./pages/ProductDetail";
 import DashboardPage from "./pages/DashboardPage";
 import PurchasePage from "./pages/PurchasePage";
 import BidderPage from "./pages/BidderPage";
+import VerificationPage from "./pages/VerificationPage";
 
 function App() {
   return (
@@ -22,6 +23,7 @@ function App() {
           <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/purchases" element={<PurchasePage />} />
           <Route path="/bidder" element={<BidderPage />} />
+          <Route path="/verify" element={<VerificationPage />} />
 
         </Routes>
       </BrowserRouter>
