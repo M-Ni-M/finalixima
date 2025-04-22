@@ -1,76 +1,139 @@
 // src/components/AddItemModal.jsx
-import React from "react";
+import React, { useState } from "react";
+import { apiCreateAuction } from "../services/auction";
 
 const AddItemModal = ({ onClose, onSubmit }) => {
-  const handleSubmit = (event) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+  const [formErrors, setFormErrors] = useState({});
+
+  const calculateEndTime = (durationInDays) => {
+    const endDate = new Date();
+    endDate.setDate(endDate.getDate() + parseInt(durationInDays));
+    return endDate.toISOString();
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const newItem = {
-      id: Date.now(), // Using timestamp for unique ID
-      name: formData.get("name"),
-      description: formData.get("description"),
-      basePrice: formData.get("basePrice"),
-      duration: formData.get("duration"),
-      category: formData.get("category"),
-      image: formData.get("image"), // File input
-    };
-    onSubmit(newItem);
-    onClose(); // Close the modal after adding the item
+    setIsLoading(true);
+    setError(null);
+    setFormErrors({});
+
+    try {
+      const formData = new FormData(event.target);
+      
+      // Convert duration to endTime
+      const duration = formData.get('duration');
+      formData.delete('duration'); // Remove duration as backend doesn't use it directly
+      formData.append('endTime', calculateEndTime(duration));
+      
+      // Convert startingBid to a number
+      const startingBid = formData.get('startingBid');
+      formData.set('startingBid', Number(startingBid));
+      
+      // Debug: Log what's being sent to the server
+      console.log("Submitting form data:");
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+      }
+      
+      const response = await apiCreateAuction(formData);
+      
+      onSubmit(response.data);
+      onClose();
+    } catch (err) {
+      console.error("Error adding auction item:", err);
+      
+      if (err.response?.data?.details) {
+        // Handle Joi validation errors
+        const validationErrors = {};
+        err.response.data.details.forEach(detail => {
+          validationErrors[detail.path[0]] = detail.message;
+        });
+        setFormErrors(validationErrors);
+        setError("Please fix the errors in the form");
+      } else if (err.response?.data?.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Failed to add item. Please try again.");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 z-50">
-      <div className="bg-white p-4 rounded-lg shadow-lg w-[30vw] relative max-w-md">
+    <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+      <div className="bg-white p-4 rounded-lg shadow-lg w-full max-w-md relative">
         <button
           onClick={onClose}
-          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700"
+          className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-xl"
         >
           ×
         </button>
         <form onSubmit={handleSubmit} className="space-y-4">
           <h2 className="text-xl font-bold mb-4">Add New Auction Item</h2>
+          
+          {error && (
+            <div className="bg-red-100 text-red-700 p-2 rounded-md mb-4">
+              {error}
+            </div>
+          )}
+          
           {/* Product Name */}
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
               Product Name*
             </label>
             <input
               type="text"
-              id="name"
-              name="name"
+              id="title"
+              name="title"
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              className={`mt-1 p-2 w-full border ${formErrors.title ? 'border-red-500' : 'border-gray-300'} rounded-md`}
             />
+            {formErrors.title && (
+              <p className="text-red-500 text-xs mt-1">{formErrors.title}</p>
+            )}
           </div>
 
           {/* Description */}
           <div>
             <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-              Description
+              Description*
             </label>
             <textarea
               id="description"
               name="description"
               rows="3"
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              required
+              className={`mt-1 p-2 w-full border ${formErrors.description ? 'border-red-500' : 'border-gray-300'} rounded-md`}
             ></textarea>
+            {formErrors.description && (
+              <p className="text-red-500 text-xs mt-1">{formErrors.description}</p>
+            )}
           </div>
 
           {/* Base Price */}
           <div>
-            <label htmlFor="basePrice" className="block text-sm font-medium text-gray-700">
-              Base Price*
+            <label htmlFor="startingBid" className="block text-sm font-medium text-gray-700">
+              Starting Bid*
             </label>
             <input
               type="number"
-              id="basePrice"
-              name="basePrice"
+              id="startingBid"
+              name="startingBid"
+              min="0"
+              step="0.01"
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              className={`mt-1 p-2 w-full border ${formErrors.startingBid ? 'border-red-500' : 'border-gray-300'} rounded-md`}
             />
+            {formErrors.startingBid && (
+              <p className="text-red-500 text-xs mt-1">{formErrors.startingBid}</p>
+            )}
           </div>
 
-          {/* Duration */}
+          {/* Duration - Will be converted to endTime */}
           <div>
             <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
               Duration (in days)*
@@ -79,12 +142,13 @@ const AddItemModal = ({ onClose, onSubmit }) => {
               type="number"
               id="duration"
               name="duration"
+              min="1"
               required
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              className={`mt-1 p-2 w-full border border-gray-300 rounded-md`}
             />
           </div>
 
-          {/* Category */}
+          {/* Category
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700">
               Category
@@ -92,37 +156,48 @@ const AddItemModal = ({ onClose, onSubmit }) => {
             <select
               id="category"
               name="category"
-              required
               className="mt-1 p-2 w-full border border-gray-300 rounded-md"
             >
               <option value="">Choose a category</option>
               <option value="food">Food</option>
               <option value="electronics">Electronics</option>
               <option value="sports">Sports</option>
-              {/* Add more categories as needed */}
             </select>
-          </div>
+          </div> */}
 
           {/* Upload Image */}
           <div>
             <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-              Upload Image
+              Upload Image*
             </label>
             <input
               type="file"
               id="image"
               name="image"
               accept="image/*"
-              className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+              required
+              className={`mt-1 p-2 w-full border ${formErrors.image ? 'border-red-500' : 'border-gray-300'} rounded-md`}
             />
+            {formErrors.image && (
+              <p className="text-red-500 text-xs mt-1">{formErrors.image}</p>
+            )}
           </div>
 
           <div className="flex justify-end">
             <button
-              type="submit"
-              className="bg-green-500 text-white px-4 py-2 rounded-md"
+              type="button"
+              onClick={onClose}
+              className="mr-2 bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
+              disabled={isLoading}
             >
-              Add Item
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="bg-green-500 text-white px-4 py-2 rounded-md disabled:bg-green-300"
+              disabled={isLoading}
+            >
+              {isLoading ? "Adding..." : "Add Item"}
             </button>
           </div>
         </form>
