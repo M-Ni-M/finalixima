@@ -3,7 +3,11 @@ import axios from "axios";
 const baseURL = import.meta.env.VITE_BASE_URL;
 
 export const apiClient = axios.create({
-    baseURL: baseURL
+    baseURL: baseURL,
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    timeout: 10000 // Set timeout to 10 seconds
 })
 
 apiClient.interceptors.request.use((config) => {

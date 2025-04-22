@@ -6,7 +6,7 @@ export const ProductCard = () => {
     <Link to="/bidder" className="block w-full max-w-sm mx-auto my-4">
       <div className="font-[MuseoModerno]  bg-green-600 rounded-lg overflow-hidden shadow-md h-[50vh] sm:h-80 md:h-96 lg:h-[50vh]">
         <div className="w-full h-4/5 flex items-center justify-center">
-          <img src='' alt="" className="object-contain w-full h-full" />
+          {/* <img src='' alt="" className="object-contain w-full h-full" /> */}
           {/* <img
             className="w-full h-full object-contain"
             src={`https://savefiles.org/${ads.image}/?shareable_link=644`}

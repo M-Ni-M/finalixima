@@ -7,6 +7,14 @@ const ProductPage = () => {
     <>
       <Nav />
       <section className="w-full h-full flex flex-col items-center bg-[#F2F2F2] pt-30">
+        <div className="w-full px-10 flex items-start"><button
+          type="button"
+          onClick={() => window.history.back()}
+          className="font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
+        >
+          ← Go Back
+        </button></div>
+      
         <div className="flex items-center justify-evenly w-full max-w-sm h-[7vh] rounded-full my-5 text-black bg-white text-l font-medium font-[MuseoModerno]">
           <p className="flex items-center justify-center">All</p>
           <p>Live</p>

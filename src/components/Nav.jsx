@@ -6,7 +6,7 @@ export const Nav = () => {
   return (
     <>
       <nav className="w-full h-[10vh] flex justify-between items-center p-4 bg-[#f2f2f2c7] shadow-md text-black fixed">
-        <Link to="/product">
+        <Link to="/">
           {" "}
           <img src={logo} width={70} alt="" />
         </Link>
