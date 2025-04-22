@@ -11,25 +11,23 @@ export const Nav = () => {
           <img src={logo} width={70} alt="" />
         </Link>
 
-        <div class="flex rounded-md  outline-none overflow-hidden ">
+        <div className="flex rounded-md outline-none overflow-hidden">
           <input
             type="email"
             placeholder="Search Something..."
-            class="w-full outline-none bg-white text-gray-600 text-sm px-8 py-3"
+            className="w-full outline-none bg-white text-gray-600 text-sm px-8 py-3"
           />
           <button
             type="button"
-            class="flex items-center justify-center bg-red-800 px-5"
+            className="flex items-center justify-center bg-red-800 px-5"
           >
-
           </button>
-         
         </div> 
-        <Link to='/dashboard' > <div className="font-[MuseoModerno] flex items-center justify-center w-[3vw] h-[3vw] rounded-[50%] bg-red-800 text-white cursor-pointer">
+        <Link to='/dashboard'> 
+          <div className="font-[MuseoModerno] flex items-center justify-center w-[3vw] h-[3vw] rounded-[50%] bg-red-800 text-white cursor-pointer">
             D
-          </div></Link>
-        
-       
+          </div>
+        </Link>
       </nav>
     </>
   );
