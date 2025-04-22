@@ -113,9 +113,6 @@ const LoginPage = () => {
               value={formData.password}
               onChange={handleChange}
               placeholder="Password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
               required
             />
             {errors.password && <p className="text-red-500 self-start ml-4">{errors.password}</p>}

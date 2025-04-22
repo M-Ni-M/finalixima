@@ -1,4 +1,4 @@
-import { apiClient } from "./Config";
+import { apiClient } from "./config";
 
 export const apiCreateAuction = (formData) => {
     return apiClient.post("/auctions", formData, {
