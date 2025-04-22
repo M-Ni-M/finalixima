@@ -1,72 +1,74 @@
 import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { useNavigate, Link } from "react-router-dom";
-import { apiUserLogin } from "../services/auth";
-import vid from "/images/vid.mp4"; // Ensure this path is correct
+
+import vid from "/images/vid.mp4"; // Import the video file
+import { Link, useNavigate } from "react-router";
+import { apiLogin } from "../services/auth";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
-    username: "",
+    email: "",
     password: "",
   });
 
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.email) newErrors.email = "E-mail is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6)
+      newErrors.password = "Password must be at least 6 characters";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
+      return;
+    }
+    
     setLoading(true);
-
+    setServerError("");
+  
     try {
-      const response = await apiUserLogin({
-        username: formData.username.trim(),
-        password: formData.password.trim(),
-      });
-
-      console.log("API Response:", response);
-
-      const token = response?.data?.token;
-
-      if (response.status === 200 && token) {
-        localStorage.setItem("token", token);
-        toast.success("Login successful!", {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "colored",
-        });
-        navigate("/product");
-        setFormData({ username: "", password: "" });
-      } else {
-        toast.error("Invalid response format", {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "colored",
-        });
-      }
+      // Use the apiLogin function from auth.js instead of fetch
+      const response = await apiLogin(formData);
+      
+      console.log("Login successful: ", response.data);
+  
+      // Store the token in local storage
+      localStorage.setItem("authToken", response.data.token);
+      // Navigate to the product page after successful login
+      navigate("/product");
+      alert("Login Successful!");
     } catch (error) {
-      console.error("Login Error:", error);
-      if (error.response?.status === 401) {
-        toast.error("Invalid username or password", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: true,
-          theme: "colored",
-        });
-      } else {
-        toast.error("An unexpected error occurred", {
-          position: "top-center",
-          autoClose: 3000,
-          hideProgressBar: true,
-          theme: "colored",
-        });
-      }
+      console.error("Error logging in:", error.response?.data || error.message);
+      setServerError(error.response?.data?.message || error.message);
     } finally {
-      setLoading(false);
+      setLoading(false); // Ensure loading state is reset
     }
   };
 
@@ -94,29 +96,40 @@ const LoginPage = () => {
           >
             <input
               className="w-full max-w-md pl-4 py-3 md:py-4 lg:py-5 bg-white mt-4 rounded-full text-black border border-red-800 text-lg md:text-xl lg:text-2xl outline-none focus:ring-0"
-              type="text"
-              placeholder="Username"
-              name="username"
-              value={formData.username}
+              type="email"
+              id="email"
+              name="email" 
+              value={formData.email}
               onChange={handleChange}
-              required
+              placeholder="Enter your email"
             />
+            {errors.email && <p className="text-red-500 self-start ml-4">{errors.email}</p>}
+            
             <input
               className="w-full max-w-md pl-4 py-3 md:py-4 lg:py-5 bg-white mt-4 rounded-full text-black border border-red-800 text-lg md:text-xl lg:text-2xl outline-none focus:ring-0"
               type="password"
+              id="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
               placeholder="Password"
               name="password"
               value={formData.password}
               onChange={handleChange}
               required
             />
+            {errors.password && <p className="text-red-500 self-start ml-4">{errors.password}</p>}
+            
+            {serverError && <p className="text-red-500 mt-2">{serverError}</p>}
+            
             <button
               type="submit"
+              className="w-full max-w-md px-5 py-3 md:py-4 lg:py-5 bg-red-800 mt-6 rounded-full text-white hover:bg-red-600 text-lg md:text-xl lg:text-2xl font-bold cursor-pointer"
               disabled={loading}
-              className="w-full max-w-md px-5 py-3 md:py-4 lg:py-5 bg-red-800 mt-6 rounded-full text-white hover:bg-red-600 text-lg md:text-xl lg:text-2xl font-bold cursor-pointer disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
+
             <p className="text-lg md:text-xl lg:text-2xl my-5">or login with</p>
             <button
               type="button"

@@ -1,79 +1,75 @@
 import React, { useState } from "react";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import vid from "/images/vid.mp4";
-import { apiRegisterUser } from "../services/auth";
-import { Link, useNavigate } from "react-router-dom";
+import vid from "/images/vid.mp4"; // Import the video file
+import { useNavigate } from "react-router";
+import { apiSignup } from "../services/auth";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
     username: "",
     email: "",
     password: "",
-    confirmPassword: "",
+    confirmPassword: ""
   });
 
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [serverError, setServerError] = useState("");
 
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
+
+    if (errors[name]) {
+      setErrors({
+        ...errors,
+        [name]: "",
+      });
+    }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  const validateForm = () => {
+    const newErrors = {};
+    if (!formData.username) newErrors.username = "Username is required";
+    if (!formData.email) newErrors.email = "Email is required";
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (formData.password.length < 6) newErrors.password = "Password must be at least 6 characters";
+    if (formData.password !== formData.confirmPassword) newErrors.confirmPassword = "Passwords do not match";
+    
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0; // Return true if no errors
+  };
 
-    // Validate password match
-    if (formData.password !== formData.confirmPassword) {
-      toast.error("Passwords do not match", {
-        position: "top-center",
-        autoClose: 3000,
-        theme: "colored",
-      });
-      setLoading(false);
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    
+    // Validate form before submission
+    if (!validateForm()) {
       return;
     }
-
+    
+    setLoading(true);
+    setServerError("");
+  
     try {
-      const response = await apiRegisterUser({
-        username: formData.username.trim(),
-        email: formData.email.trim(),
-        password: formData.password.trim(),
-        confirmPassword: formData.confirmPassword.trim(),
+      // Call signup API
+      const response = await apiSignup({
+        username: formData.username,
+        email: formData.email,
+        password: formData.password,
+        confirmPassword: formData.confirmPassword
       });
-
-      if (response.status === 200 && response.data.userId) {
-        toast.success("Registration successful! Check your email for verification.", {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "colored",
-        });
-        navigate(`/verify?email=${formData.email}`);
-        setFormData({
-          username: "",
-          email: "",
-          password: "",
-          confirmPassword: "",
-        });
-      } else {
-        throw new Error("Registration failed");
-      }
+      
+      console.log("Signup successful: ", response.data);
+      
+      // Navigate to email verification page with email in state
+      navigate("/verify-email", { state: { email: formData.email } });
     } catch (error) {
-      console.error("Registration Error:", error);
-      if (error.response?.data?.message) {
-        toast.error(error.response.data.message, {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "colored",
-        });
-      } else {
-        toast.error("An unexpected error occurred", {
-          position: "top-center",
-          autoClose: 3000,
-          theme: "colored",
-        });
-      }
+      console.error("Error signing up:", error.response?.data || error.message);
+      setServerError(error.response?.data?.message || "Failed to sign up. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -83,19 +79,18 @@ const SignupPage = () => {
     <>
       <ToastContainer />
       <section className="h-screen w-full flex flex-col md:flex-row">
-        {/* Back Button */}
-        <button
-          onClick={() => window.history.back()}
-          className="absolute top-4 left-4 font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-        >
-          ← Go Back
-        </button>
-
         {/* Left Section - Signup Form */}
         <div className="flex flex-col justify-center items-center w-full mt-10 md:w-2/3 bg-white p-4 md:p-6 lg:p-8">
           <h1 className="font-[MuseoModerno] text-3xl sm:text-4xl md:text-3xl lg:text-5xl font-bold text-center whitespace-nowrap">
             Signup to start bidding
           </h1>
+          
+          {serverError && (
+            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mt-4 w-full max-w-sm" role="alert">
+              <span className="block sm:inline">{serverError}</span>
+            </div>
+          )}
+          
           <form
             onSubmit={handleSubmit}
             className="flex flex-col justify-center items-center w-full mt-4 font-[MuseoModerno]"
@@ -103,56 +98,78 @@ const SignupPage = () => {
             <input
               className="w-full max-w-sm pl-3 py-2 md:py-3 lg:py-4 bg-white mt-3 rounded-full text-black border border-red-800 text-base md:text-lg lg:text-xl outline-none focus:ring-0"
               type="text"
-              placeholder="Username"
               name="username"
+              id="username"
               value={formData.username}
               onChange={handleChange}
-              required
+              placeholder="Username"
+              disabled={loading}
             />
+            {errors.username && <p className="text-red-500 self-start ml-4 mt-1 text-sm">{errors.username}</p>}
+            
             <input
               className="w-full max-w-sm pl-3 py-2 md:py-3 lg:py-4 bg-white mt-3 rounded-full text-black border border-red-800 text-base md:text-lg lg:text-xl outline-none focus:ring-0"
               type="email"
-              placeholder="Email"
               name="email"
+              id="email"
               value={formData.email}
               onChange={handleChange}
-              required
+              placeholder="Email"
+              disabled={loading}
             />
+            {errors.email && <p className="text-red-500 self-start ml-4 mt-1 text-sm">{errors.email}</p>}
+            
             <input
               className="w-full max-w-sm pl-3 py-2 md:py-3 lg:py-4 bg-white mt-3 rounded-full text-black border border-red-800 text-base md:text-lg lg:text-xl outline-none focus:ring-0"
               type="password"
-              placeholder="Password"
               name="password"
+              id="password"
               value={formData.password}
               onChange={handleChange}
-              required
+              placeholder="Password"
+              disabled={loading}
             />
+            {errors.password && <p className="text-red-500 self-start ml-4 mt-1 text-sm">{errors.password}</p>}
+            
             <input
               className="w-full max-w-sm pl-3 py-2 md:py-3 lg:py-4 bg-white mt-3 rounded-full text-black border border-red-800 text-base md:text-lg lg:text-xl outline-none focus:ring-0"
               type="password"
-              placeholder="Confirm Password"
               name="confirmPassword"
+              id="confirmPassword"
               value={formData.confirmPassword}
               onChange={handleChange}
-              required
+              placeholder="Confirm Password"
+              disabled={loading}
             />
+            {errors.confirmPassword && <p className="text-red-500 self-start ml-4 mt-1 text-sm">{errors.confirmPassword}</p>}
+            
             <button
               type="submit"
               className="w-full max-w-sm px-4 py-2 md:py-3 lg:py-4 bg-red-800 mt-4 rounded-full text-white hover:bg-red-600 text-base md:text-lg lg:text-xl font-bold cursor-pointer"
+              disabled={loading}
             >
               {loading ? "Signing up..." : "Signup"}
             </button>
-            <p className="text-base md:text-lg lg:text-xl my-2">or signup with</p>
+            
+            <p className="text-base md:text-lg lg:text-xl my-2">
+              or signup with
+            </p>
+            
             <button
               type="button"
               className="w-full max-w-sm px-4 py-2 md:py-3 lg:py-4 bg-blue-800 mt-2 rounded-full text-white hover:bg-blue-600 text-base md:text-lg lg:text-xl font-bold cursor-pointer"
+              disabled={loading}
             >
               Google
             </button>
-            <div className="w-full text-right font-bold mt-2 text-blue-950">
-              <Link to="/forgot-password" className="cursor-pointer">
+            
+            <div className="w-full max-w-sm flex justify-between mt-4">
+              <p className="cursor-pointer text-blue-800 hover:text-blue-600">
+                Already have an account? <span className="font-bold">Log in</span>
+              </p>
+              <p className="cursor-pointer text-blue-800 hover:text-blue-600">
                 Forgot password?
-              </Link>
+              </p>
             </div>
           </form>
         </div>

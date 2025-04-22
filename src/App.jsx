@@ -9,22 +9,46 @@ import DashboardPage from "./pages/DashboardPage";
 import PurchasePage from "./pages/PurchasePage";
 import BidderPage from "./pages/BidderPage";
 import VerificationPage from "./pages/VerificationPage";
+import VerifyEmailPage from "./Auth/verifyPage";
+import ProtectedRoute from "./protectedRoute";
 
 function App() {
   return (
     <>
       <BrowserRouter>
         <Routes>
+          {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
-          <Route path="/product" element={<ProductPage />} />
-          <Route path="/detail" element={<ProductDetail />} />
-          <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/purchases" element={<PurchasePage />} />
-          <Route path="/bidder" element={<BidderPage />} />
-          <Route path="/verify" element={<VerificationPage />} />
-
+          <Route path="/verify-email" element={<VerifyEmailPage />} />
+          
+          {/* Protected Routes */}
+          <Route path="/product" element={
+            <ProtectedRoute>
+              <ProductPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/detail" element={
+            <ProtectedRoute>
+              <ProductDetail />
+            </ProtectedRoute>
+          } />
+          <Route path="/dashboard" element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          } />
+          <Route path="/purchases" element={
+            <ProtectedRoute>
+              <PurchasePage />
+            </ProtectedRoute>
+          } />
+          <Route path="/bidder" element={
+            <ProtectedRoute>
+              <BidderPage />
+            </ProtectedRoute>
+          } />
         </Routes>
       </BrowserRouter>
     </>
