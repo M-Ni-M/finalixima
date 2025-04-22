@@ -58,13 +58,21 @@ const LoginPage = () => {
       }
 
       localStorage.setItem("authToken", response.data.token);
-      navigate("/product", { replace: true });
+
+      console.log("Before displaying success toast");
 
       toast.success("Login successful!", {
         position: "top-center",
         autoClose: 3000,
         theme: "colored",
       });
+
+      console.log("Success toast displayed");
+
+      // Adding delay to ensure the toast is displayed
+      setTimeout(() => {
+        navigate("/product", { replace: true });
+      }, 500);
     } catch (error) {
       if (import.meta.env.DEV) {
         console.error("Login failed:", error.response?.data || error.message);
@@ -72,14 +80,12 @@ const LoginPage = () => {
 
       let finalMessage = "An unexpected error occurred";
 
-      // Check for specific status codes
       if (error.response) {
         if (error.response.status === 404) {
           finalMessage = "Email is incorrect";
         } else if (error.response.status === 401) {
           finalMessage = "Password is incorrect";
         } else {
-          // Fallback to backend message if available
           const backendMessage = error.response?.data?.message;
 
           if (typeof backendMessage === "string") {
@@ -109,7 +115,6 @@ const LoginPage = () => {
     <>
       <ToastContainer />
       <section className="h-screen w-full flex flex-col md:flex-row relative">
-        {/* Back Button */}
         <button
           type="button"
           onClick={() => window.history.back()}
@@ -118,7 +123,6 @@ const LoginPage = () => {
           ← Go Back
         </button>
 
-        {/* Left Section - Login Form */}
         <div className="flex flex-col justify-center items-center w-full mt-20 md:w-2/3 bg-white p-4 md:p-8 lg:p-16">
           <h1 className="font-[MuseoModerno] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center whitespace-nowrap">
             Welcome back
@@ -133,7 +137,7 @@ const LoginPage = () => {
               value={formData.email}
               onChange={handleChange}
               placeholder="Enter your email"
-              className="w-full max-w-md pl-4 py-3 md:py-4 lg:py-3 bg-white mt-4 rounded-full text-black border border-red-800 text-lg md:text-xl lg:text-xl outline-none focus:ring-0"
+              className="w-full max-w-md pl-4 py-3 md:py-4 lg:py-3 bg-white mt-4 rounded-full text-black border border-red-800 text-lg md:text-xl lg:text-2xl outline-none focus:ring-0"
               required
             />
 
@@ -150,7 +154,7 @@ const LoginPage = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full max-w-md px-5 py-3 md:py-4 lg:py-3 bg-red-800 mt-6 rounded-full text-white hover:bg-red-600 text-lg md:text-xl lg:text-xl font-bold cursor-pointer disabled:opacity-50"
+              className="w-full max-w-md px-5 py-3 md:py-4 lg:py-3 bg-red-800 mt-6 rounded-full text-white hover:bg-red-600 text-lg md:text-xl lg:text-2xl font-bold cursor-pointer disabled:opacity-50"
             >
               {loading ? "Logging in..." : "Login"}
             </button>
@@ -180,7 +184,6 @@ const LoginPage = () => {
           </form>
         </div>
 
-        {/* Right Section - Video Background */}
         <div className="w-full md:w-1/3 h-64 md:h-auto">
           <video
             src={vid}
