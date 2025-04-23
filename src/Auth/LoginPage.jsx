@@ -2,7 +2,11 @@ import React, { useEffect, useState } from "react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { apiLogin, handleGoogleCallback, initiateGoogleAuth } from "../services/auth";
+import {
+  apiLogin,
+  handleGoogleCallback,
+  initiateGoogleAuth,
+} from "../services/auth";
 import vid from "/images/vid.mp4"; // Ensure this path is correct
 
 const LoginPage = () => {
@@ -19,11 +23,11 @@ const LoginPage = () => {
   useEffect(() => {
     // Check if this is a callback from Google OAuth
     const urlParams = new URLSearchParams(location.search);
-    const token = urlParams.get('token');
-    
+    const token = urlParams.get("token");
+
     if (token) {
       handleGoogleCallback(token);
-      navigate('/product', { replace: true });
+      navigate("/product", { replace: true });
       toast.success("Login successful!", {
         position: "top-center",
         autoClose: 3000,
@@ -75,7 +79,8 @@ const LoginPage = () => {
         console.log("Login successful:", response.data);
       }
 
-      localStorage.setItem("authToken", response.data.token);
+      localStorage.setItem("authToken", response.data.accessToken);
+      localStorage.setItem("userId", response.data.user.id);
 
       console.log("Before displaying success toast");
 
@@ -195,14 +200,23 @@ const LoginPage = () => {
                 to="/signup"
                 className="cursor-pointer text-blue-800 hover:text-blue-600"
               >
-                Don't have an account? <span className="font-bold">Sign Up</span>
+                Don't have an account?{" "}
+                <span className="font-bold">Sign Up</span>
               </Link>
-              <Link
-                to="/forgot-password"
-                className="cursor-pointer text-blue-800 hover:text-blue-600"
-              >
-                Forgot password?
-              </Link>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center">
+                  {/* Remember me checkbox if you have one */}
+                </div>
+
+                <div className="text-sm">
+                  <a
+                    href="/forgot-password"
+                    className="font-medium text-black hover:text-gray-800"
+                  >
+                    Forgot your password?
+                  </a>
+                </div>
+              </div>
             </div>
           </form>
         </div>
