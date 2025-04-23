@@ -12,13 +12,8 @@ export const ProductDetail = () => {
         <div className="w-[40vw] h-[70vh] flex items-center justify-center rounded-2xl bg-gray-600">
           <Carousel />
         </div>
-        <div className="w-full px-10 fixed flex items-start"><button
-          type="button"
-          onClick={() => window.history.back()}
-          className="font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-        >
-          ← Go Back
-        </button></div>
+        <BackButton/>
+
         <div className="flex flex-col w-[30%] min-h-[70vh] rounded-2xl border bg-white border-gray-300 shadow-2xl">
           
           <div className="w-full h-18 flex font-[MuseoModerno] text-xl font-bold items-center border-b-2 border-gray-300 px-5">

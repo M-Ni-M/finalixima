@@ -1,5 +1,6 @@
 import React from "react";
 import logo from "/images/bb.png";
+import { FaSearch } from "react-icons/fa";
 import { Link } from "react-router";
 import DropdownMenu from "./DropdownMenu";
 export const Nav = () => {
@@ -19,8 +20,9 @@ export const Nav = () => {
           />
           <button
             type="button"
-            className="flex items-center justify-center bg-red-800 px-5"
-          >
+            className="flex text-white items-center justify-center bg-red-800 px-5"
+          ><FaSearch />
+
           </button>
         </div> 
         <Link to='/dashboard'> 

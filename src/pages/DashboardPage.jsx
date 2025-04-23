@@ -6,6 +6,7 @@ import { Link } from "react-router";
 import DropdownMenu from "../components/DropdownMenu";
 import AuctionsTable from "../components/AuctionsTable";
 import { apiCreateAuction, apiGetAllAuctions, apiGetUserAuctions } from "../services/auction";
+import BackButton from "../components/BackButton";
 
 // const DashboardPage = () => {
 //   // State to manage the list of auction items
@@ -270,7 +271,7 @@ const DashboardPage = () => {
   return (
     <section className="flex flex-col w-full h-screen">
       {/* Main Content */}
-      <div className="flex items-center bg-red-600 w-full fixed p-3 justify-between">
+      <div className="flex items-center bg-red-600 opacity w-full fixed p-3 justify-between">
         <div className="flex items-center w-[20%]">
           <img src="/images/bb.png" width={50} alt="Logo" className="mr-2" />
           <h1 className="font-[MuseoModerno] font-medium text-2xl text-white">
@@ -294,16 +295,9 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col bg-gray-100 w-full min-h-fit gap-5 p-10 pt-40 justify-center">
-        <div className="w-full px-10 flex items-start">
-          <button
-            type="button"
-            onClick={() => window.history.back()}
-            className="font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-          >
-            ← Go Back
-          </button>
-        </div>
+      <div className="flex flex-col w-full min-h-fit gap-5 p-10 pt-40 justify-center"   style={{ backgroundImage: "url('/images/bg.png')" }}>
+      <BackButton/>
+
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="flex flex-col w-full h-full rounded-2xl border gap-5 p-5 border-gray-300 bg-white">

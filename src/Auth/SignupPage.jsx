@@ -4,6 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { apiSignup, handleGoogleCallback, initiateGoogleAuth } from "../services/auth";
 import vid from "/images/vid.mp4";
+import BackButton from "../components/BackButton";
 
 const SignupPage = () => {
   const [formData, setFormData] = useState({
@@ -115,17 +116,12 @@ const SignupPage = () => {
     <>
       <ToastContainer />
       <section className="h-screen w-full flex flex-col md:flex-row">
-          {/* Back Button */}
-          <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="absolute top-4 left-4 font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-        >
-          ← Go Back
-        </button>
+      
         {/* Left Section - Signup Form */}
-        <div className="flex flex-col justify-center items-center w-full mt-10 md:w-2/3 bg-white p-4 md:p-6 lg:p-8">
-          <h1 className="font-[MuseoModerno] text-3xl sm:text-4xl md:text-3xl lg:text-5xl font-bold text-center whitespace-nowrap">
+        <div className="flex flex-col justify-center items-center w-full md:w-2/3 bg-white p-4 md:p-6 lg:p-8">
+        <BackButton/>
+
+          <h1 className="font-[MuseoModerno] text-3xl sm:text-4xl md:text-3xl lg:text-5xl font-bold text-center whitespace-nowrap mt-5">
             Signup to start bidding
           </h1>
 

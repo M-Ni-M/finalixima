@@ -8,6 +8,7 @@ import {
   initiateGoogleAuth,
 } from "../services/auth";
 import vid from "/images/vid.mp4"; // Ensure this path is correct
+import BackButton from "../components/BackButton";
 
 const LoginPage = () => {
   const [formData, setFormData] = useState({
@@ -142,16 +143,11 @@ const LoginPage = () => {
     <>
       <ToastContainer />
       <section className="h-screen w-full flex flex-col md:flex-row relative">
-        <button
-          type="button"
-          onClick={() => window.history.back()}
-          className="absolute top-4 left-4 font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-        >
-          ← Go Back
-        </button>
+    
 
-        <div className="flex flex-col justify-center items-center w-full mt-20 md:w-2/3 bg-white p-4 md:p-8 lg:p-16">
-          <h1 className="font-[MuseoModerno] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center whitespace-nowrap">
+
+        <div className="flex flex-col justify-center items-center w-full md:w-2/3 bg-white p-4 md:p-8 lg:p-10">
+            <BackButton/><h1 className="font-[MuseoModerno] text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-center whitespace-nowrap mt-5">
             Welcome back
           </h1>
           <form

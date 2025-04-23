@@ -5,6 +5,7 @@ import { CiFilter } from "react-icons/ci";
 import { Link } from "react-router";
 import DropdownMenu from "../components/DropdownMenu";
 import PurchasesTable from "../components/PurchaseTable";
+import BackButton from "../components/BackButton";
 
 const PurchasePage = () => {
   // State to manage the list of products
@@ -63,14 +64,9 @@ const PurchasePage = () => {
         </div>
       </div>
 
-      <div className="flex flex-col bg-gray-100 w-full min-h-fit gap-5 p-10 pt-40 justify-center">
-      <div className="w-full px-10 flex items-start"><button
-          type="button"
-          onClick={() => window.history.back()}
-          className="font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-        >
-          ← Go Back
-        </button></div>
+      <div className="flex flex-col w-full min-h-fit gap-5 p-10 pt-40 justify-center"   style={{ backgroundImage: "url('/images/bg.png')" }}>
+      <BackButton/>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
           <div className="flex flex-col w-full h-full rounded-2xl border gap-5 p-5 border-gray-300 bg-white">
             <div className="w-10 h-10 rounded-xl bg-gray-100"></div>
