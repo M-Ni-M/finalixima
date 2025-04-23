@@ -5,10 +5,10 @@ import happy from "/images/happy.png"; // Import the happy image
 
 const LandingPage = () => {
   return (
-    <>
+    <div className="relative">
       {/* Main Landing Page Section */}
       <section
-        className="relative w-full h-screen bg-cover bg-center bg-no-repeat bg-gray-900 flex flex-col items-center justify-center overflow-hidden"
+        className="sticky top-0 h-screen w-full bg-cover bg-center bg-no-repeat bg-gray-900 flex flex-col items-center justify-center overflow-hidden"
         style={{ backgroundImage: "url('/images/bg.png')" }}
         aria-label="Landing Page Background"
       >
@@ -52,7 +52,7 @@ const LandingPage = () => {
       </section>
 
       {/* Second Section */}
-      <section className="h-screen w-full flex flex-col items-center justify-center p-9 md:p-8 lg:p-16">
+      <section className="sticky top-0 h-screen w-full flex flex-col items-center justify-center p-9 md:p-8 lg:p-16 bg-white">
         <div className="flex flex-col items-center w-full mt-20 md:w-6/6 bg-white p-9 md:p-8 lg:p-16">
           <h1 className="font-[MuseoModerno] text-2xl sm:text-4xl md:text-3xl lg:text-5xl font-bold text-center mb-4">
             Experience the excitement of the auction floor,{" "}
@@ -69,7 +69,54 @@ const LandingPage = () => {
           </Link>
         </div>
       </section>
-    </>
+
+      {/* Third Section */}
+      <section className="sticky top-0 h-screen w-full flex flex-col md:flex-row items-center justify-center bg-gray-100 p-4">
+        <div className="flex-1 text-center md:text-left p-4">
+          <h1 className="text-5xl font-bold text-black font-mono mb-5">
+            Digital Showroom for Vendors & Retailers
+          </h1>
+          <p className="text-2xl sm:text-3xl md:text-xl font-mono leading-11 text-black">
+            Welcome to our Ad Media Library, the ultimate platform for vendors,
+            brands, and retailers to showcase their products. Our showroom
+            provides a centralized space where you can upload high-quality
+            product images and detailed specifications to attract customers and
+            business partners.
+          </p>
+          <Link to="/signup">
+            <button className="bg-[#7D9595] w-[10vw] h-[9vh] text-2xl font-bold font-mono cursor-pointer mt-5">
+              Sign Up
+            </button>
+          </Link>
+        </div>
+        <div className="flex-1 flex justify-center items-center">
+          <img
+            src="https://framerusercontent.com/images/dJvdzAxodMG2Uz94f6biE2WM.png"
+            width="500"
+            alt=""
+          />
+        </div>
+      </section>
+
+      {/* Footer Section */}
+      <footer className="sticky top-0 h-screen w-full flex flex-col items-center justify-center bg-black text-white p-4">
+        <div className="flex flex-col justify-center items-center">
+          <img
+            width="400"
+            src="https://framerusercontent.com/images/QJbv2VFheaAQZxkNAxg0yejpmZk.png"
+            alt=""
+          />
+          <h1 className="text-4xl font-bold font-mono mt-4">
+            Only the best of everything you need
+          </h1>
+        </div>
+        <div className="w-full h-[20vh] bg-black text-white flex items-center justify-center">
+          <h1 className="text-xl">
+            © 2025 teamBots®. All rights reserved.
+          </h1>
+        </div>
+      </footer>
+    </div>
   );
 };
 

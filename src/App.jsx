@@ -72,6 +72,14 @@ function App() {
               </ProtectedRoute>
             }
           />
+             <Route
+            path="/room"
+            element={
+              <ProtectedRoute>
+                <AuctionRoom />
+              </ProtectedRoute>
+            }
+          />
         </Routes>
       </BrowserRouter>
     </>

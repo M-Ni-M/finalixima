@@ -60,8 +60,8 @@ const ProductPage = () => {
   return (
     <>
       <Nav />
-      <section className="w-full h-full flex flex-col items-center bg-[#F2F2F2] pt-30">
-        <div className="w-full px-10 flex items-start mt-24">
+      <section className="w-full h-full flex flex-col items-center bg-[#F2F2F2] pt-20">
+        <div className="w-full px-10 flex items-start ">
           <button
             type="button"
             onClick={() => window.history.back()}

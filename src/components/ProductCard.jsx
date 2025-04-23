@@ -4,10 +4,10 @@ import { Link } from "react-router";
 export const ProductCard = ({ item }) => {
   return (
     <Link to={`/detail/${item._id}`} className="block w-full max-w-sm mx-auto my-4">
-      <div className="font-[MuseoModerno] bg-green-600 rounded-lg overflow-hidden shadow-md h-[50vh] sm:h-80 md:h-96 lg:h-[50vh]">
+      <div className="font-[MuseoModerno] bg-white rounded-lg overflow-hidden shadow-md h-[50vh] sm:h-80 md:h-96 lg:h-[50vh]">
         <div className="w-full h-4/5 flex items-center justify-center">
           <img 
-            className="w-full h-full object-contain"
+            className="w-full h-full object-cover"
             src={item.image ? `https://res.cloudinary.com/dyfpxokoj/image/upload/${item.image}` : "https://via.placeholder.com/300?text=No+Image"}
             alt={item.title}
           />
