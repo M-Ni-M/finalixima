@@ -12,6 +12,7 @@ import VerificationPage from "./pages/VerificationPage";
 import VerifyEmailPage from "./Auth/verifyPage";
 import ProtectedRoute from "./protectedRoute";
 import GoogleCallback from "./Auth/GoogleCallback";
+import AuctionRoom from "./pages/AuctionRoom";
 
 function App() {
   return (
@@ -34,6 +35,10 @@ function App() {
           <Route path="/detail" element={
             <ProtectedRoute>
               <ProductDetail />
+            </ProtectedRoute>
+          } />  <Route path="/room" element={
+            <ProtectedRoute>
+              <AuctionRoom />
             </ProtectedRoute>
           } />
           <Route path="/dashboard" element={

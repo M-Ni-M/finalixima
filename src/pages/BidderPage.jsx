@@ -1,6 +1,7 @@
 import React from "react";
 import Nav from "../components/Nav";
 import Carousel from "../components/Carousel";
+import { Link } from "react-router";
 
 export const BidderPage = () => {
   return (
@@ -68,21 +69,9 @@ export const BidderPage = () => {
                 <strong>Current bidder:</strong> <span>McKay</span>
               </p>
               <div>
-                <label
-                  htmlFor="bidAmount"
-                  className="block text-sm font-medium"
-                >
-                  Enter your bid amount ($):
-                </label>
-                <input
-                  type="number"
-                  id="bidAmount"
-                  placeholder="Enter amount"
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-yellow-500 focus:border-yellow-500 sm:text-sm"
-                />
-                <button className="w-full py-3 mt-3 font-bold bg-yellow-500 rounded-md hover:bg-yellow-600 cursor-pointer">
-                  Submit Bid
-                </button>
+              
+              <Link to='/room' >  <button className="w-full py-3 mt-3 font-bold bg-yellow-500 rounded-md hover:bg-yellow-600 cursor-pointer">
+              Enter Auction Room                </button></Link>
                 <p className="text-xs text-gray-600 pt-2">
                   All bids are legally binding and all sales are final.
                 </p>
