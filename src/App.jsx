@@ -8,12 +8,12 @@ import ProductDetail from "./pages/ProductDetail";
 import DashboardPage from "./pages/DashboardPage";
 import PurchasePage from "./pages/PurchasePage";
 import BidderPage from "./pages/BidderPage";
-import VerificationPage from "./pages/VerificationPage";
 import VerifyEmailPage from "./Auth/verifyPage";
 import ProtectedRoute from "./protectedRoute";
 import GoogleCallback from "./Auth/GoogleCallback";
 import ResetPassword from "./Auth/resetPassword";
 import ForgotPassword from "./Auth/forgetPassword";
+import OwnerProductDetail from "./pages/ownerProductDetail";
 import AuctionRoom from "./pages/AuctionRoom";
 
 function App() {
@@ -29,7 +29,10 @@ function App() {
           <Route path="/auth/callback" element={<GoogleCallback />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/api/v1/reset-password/:token" element={<ResetPassword />} />
+          <Route
+            path="/api/v1/reset-password/:token"
+            element={<ResetPassword />}
+          />
 
           {/* Protected Routes */}
           <Route
@@ -40,8 +43,24 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route
+           <Route
+            path="/owner-detail/:id"
+            element={
+              <ProtectedRoute>
+                <OwnerProductDetail />
+              </ProtectedRoute>
+            }
+          />
+          {/* <Route
             path="/detail"
+            element={
+              <ProtectedRoute>
+                <ProductDetail />
+              </ProtectedRoute>
+            }
+          /> */}
+          <Route
+            path="/detail/:id"
             element={
               <ProtectedRoute>
                 <ProductDetail />

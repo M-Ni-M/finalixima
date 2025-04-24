@@ -212,21 +212,29 @@ const DashboardPage = () => {
     setIsLoading(true);
     try {
       const response = await apiGetUserAuctions();
+      console.log("API response received:", response);
       
       // Check if the response contains items and format them for the table
       if (response.data && response.data.items) {
         // Format the items to match your table component's expected structure
         const formattedItems = response.data.items?.map(item => ({
-          id: item._id,
+          id: item.id,
           name: item.title,
           image: item.image ? `https://res.cloudinary.com/dyfpxokoj/image/upload/${item.image}` : "https://via.placeholder.com/60?text=No+Image",
           date: new Date(item.createdAt).toLocaleDateString(),
           status: new Date(item.endTime) > new Date() ? "Active" : "Completed",
           startingBid: item.startingBid,
+          category: item.category,
           currentBid: item.currentBid || item.startingBid,
           description: item.description,
           endTime: new Date(item.endTime).toLocaleDateString()
         }));
+
+        const items = response.data.items;
+        console.log("Items fetched:", items);
+        
+        // Set the products state with the items array
+        setProducts(items || []);
         
         setProducts(formattedItems);
         setTotalItems(formattedItems.length);
@@ -359,7 +367,7 @@ const DashboardPage = () => {
             </button>
           </div>
         ) : (
-          <AuctionsTable products={filteredProducts} onRefresh={fetchAuctions} />
+          <AuctionsTable products={products} onRefresh={fetchAuctions} />
         )}
 
         {/* Modal */}
