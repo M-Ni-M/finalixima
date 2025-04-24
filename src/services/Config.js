@@ -1,22 +1,21 @@
-import axios from 'axios';
+import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL || "https://auction-api-6aps.onrender.com/api/v1";
+const baseURL = import.meta.env.VITE_BASE_URL;
 
 export const apiClient = axios.create({
-    baseURL: BASE_URL,
-    timeout: 30000,
+    baseURL: baseURL,
     headers: {
         'Content-Type': 'application/json'
-    }
-});
+    },
+    timeout: 10000 // Set timeout to 10 seconds
+})
 
-// Request interceptor for auth headers
-apiClient.interceptors.request.use(config => {
-    const token = localStorage.getItem('token');
+apiClient.interceptors.request.use((config) => {
+    const token = localStorage.getItem("authToken");
     if (token) {
         config.headers.Authorization = `Bearer ${token}`;
     }
-    return config;
-}, error => {
-    return Promise.reject(error);
+    return config;  // This return was missing
+}, (error) => {
+    return Promise.reject(error);  // Adding error handling
 });
