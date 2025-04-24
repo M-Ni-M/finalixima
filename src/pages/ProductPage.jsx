@@ -61,10 +61,17 @@ const ProductPage = () => {
   return (
     <>
       <Nav />
-      <section className="w-full h-full flex flex-col items-center pt-20"   style={{ backgroundImage: "url('/images/bg.png')" }}>
-       <BackButton/>
-      
-        <div className="flex items-center justify-evenly w-full max-w-sm h-[7vh] rounded-full my-5 text-black bg-white text-l font-medium font-[MuseoModerno] border border-gray-300">
+      <section className="w-full h-full flex flex-col items-center bg-[#F2F2F2] pt-30">
+        <div className="w-full px-10 flex items-start mt-5">
+          <button
+            type="button"
+            onClick={() => window.history.back()}
+            className="font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
+          >
+            ← Go Back
+          </button>
+        </div>
+        <div className="flex items-center justify-evenly w-200 h-[7vh] rounded-full my-5 text-black bg-white text-l font-medium font-[MuseoModerno]">
           <p 
             className={`flex items-center justify-center cursor-pointer ${selectedCategory === "All" ? "text-red-600" : "hover:text-red-600"}`}
             onClick={() => handleCategoryChange("All")}
@@ -72,22 +79,28 @@ const ProductPage = () => {
             All
           </p>
           <p 
-            className={`cursor-pointer ${selectedCategory === "Live" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Live")}
+            className={`cursor-pointer ${selectedCategory === "Agricultural products" ? "text-red-600" : "hover:text-red-600"}`}
+            onClick={() => handleCategoryChange("Agricultural products")}
           >
-            Live
+            Agricultural products
           </p>
           <p 
-            className={`cursor-pointer ${selectedCategory === "Lifestyle" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Lifestyle")}
+            className={`cursor-pointer ${selectedCategory === "Artisan crafts" ? "text-red-600" : "hover:text-red-600"}`}
+            onClick={() => handleCategoryChange("Artisan crafts")}
           >
-            Lifestyle
+            Artisan crafts
           </p>
           <p 
-            className={`cursor-pointer ${selectedCategory === "Technology" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Technology")}
+            className={`cursor-pointer ${selectedCategory === "Electronics & Gadgets" ? "text-red-600" : "hover:text-red-600"}`}
+            onClick={() => handleCategoryChange("Electronics & Gadgets")}
           >
-            Technology
+           Electronics & Gadgets
+          </p>
+          <p 
+            className={`cursor-pointer ${selectedCategory === "Fashion & Home decor" ? "text-red-600" : "hover:text-red-600"}`}
+            onClick={() => handleCategoryChange("Fashion & Home decor")}
+          >
+           Fashion & Home decor
           </p>
         </div>
 
@@ -112,7 +125,7 @@ const ProductPage = () => {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 justify-center w-[80vw] min-h-screen py-8">
             {filteredItems.map((item) => (
-              <ProductCard key={item._id} item={item} />
+              <ProductCard key={item.id} item={item} />
             ))}
           </div>
         )}

@@ -148,7 +148,7 @@ const AddItemModal = ({ onClose, onSubmit }) => {
             />
           </div>
 
-          {/* Category
+          {/* Category */}
           <div>
             <label htmlFor="category" className="block text-sm font-medium text-gray-700">
               Category
@@ -156,14 +156,16 @@ const AddItemModal = ({ onClose, onSubmit }) => {
             <select
               id="category"
               name="category"
+              required
               className="mt-1 p-2 w-full border border-gray-300 rounded-md"
             >
               <option value="">Choose a category</option>
-              <option value="food">Food</option>
-              <option value="electronics">Electronics</option>
-              <option value="sports">Sports</option>
+              <option value="agricultural products">agricultural products</option>
+              <option value="artisan crafts">artisan crafts</option>
+              <option value="electronics & gadgets">electronics & gadgets</option>
+              <option value="fashion & home decor">fashion & home decor</option>
             </select>
-          </div> */}
+          </div>
 
           {/* Upload Image */}
           <div>
