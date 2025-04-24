@@ -15,7 +15,7 @@ export const apiVerifyEmail = async (payload) => {
 // Add this function to your existing auth.js service file
 
 export const initiateGoogleAuth = () => {
-    window.location.href = 'https://finalixima.netlify.app/api/v1/google';
+    window.location.href = 'https://auction-api-6aps.onrender.com/api/v1/google';
   };
   
   // Add this function to handle the callback from Google OAuth
