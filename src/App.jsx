@@ -92,7 +92,7 @@ function App() {
             }
           />
              <Route
-            path="/room"
+            path="/room/:id"
             element={
               <ProtectedRoute>
                 <AuctionRoom />
