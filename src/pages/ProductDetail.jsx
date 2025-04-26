@@ -885,7 +885,7 @@ export const ProductDetail = () => {
             <p>
               <strong>Time left:</strong>{" "}
               <span className="text-red-600 font-semibold">
-                {calculateTimeLeft(item.startTime)}
+                {calculateTimeLeft(item.endTime)}
               </span>
             </p>
             <p>
