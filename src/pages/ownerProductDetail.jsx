@@ -3,7 +3,6 @@ import { useNavigate, useParams } from "react-router";
 import Nav from "../components/Nav";
 import Carousel from "../components/Carousel";
 import { apiGetAuctionById, apiUpdateAuction } from "../services/auction";
-import io from "socket.io-client"
 
 const OwnerProductDetail = () => {
   const params = useParams();
@@ -80,7 +79,7 @@ const OwnerProductDetail = () => {
       if (item && item.endTime) {
         const now = new Date();
         const startTime = new Date(item.endTime);
-        setAuctionTimeReached(now >= Time);
+        setAuctionTimeReached(now >= startTime);
       }
     }, 15000);
 
@@ -554,9 +553,9 @@ const handleStartAuction = async () => {
 
                 {item?.status === "upcoming" && (
                   <p>
-                    <strong>Time until start:</strong>{" "}
+                    <strong>Time left:</strong>{" "}
                     <span className="text-blue-600 font-semibold">
-                      {calculateTimeUntilStart(item.startTime)}
+                      {calculateTimeUntilStart(item.endTime)}
                     </span>
                   </p>
                 )}
