@@ -9,7 +9,7 @@ export const ProductCard = ({ item }) => {
   console.log("Item ID being used for link:", item.id);
   return (
     <Link to={`/detail/${item.id}`} className="block w-full max-w-sm mx-auto my-4">
-      <div className="font-[MuseoModerno] bg-green-600 rounded-lg overflow-hidden shadow-md h-80 md:h-96 cursor-pointer hover:shadow-xl transition-shadow">
+      <div className="font-[MuseoModerno] bg-white border border-gray-300 rounded-lg overflow-hidden shadow-md h-80 md:h-96 cursor-pointer hover:shadow-xl transition-shadow">
         <div className="w-full h-4/5 flex items-center justify-center">
           <img 
             className="w-full h-full object-cover"
@@ -23,7 +23,7 @@ export const ProductCard = ({ item }) => {
             <p className="text-sm">{item.category || "Uncategorized"}</p>
           </div>
           <div className="bg-red-800 text-white flex items-center justify-center font-medium rounded-xl p-2">
-            ${item.startingBid}
+          ¢{item.startingBid}
           </div>
         </div>
       </div>

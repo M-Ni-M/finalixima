@@ -1,5 +1,7 @@
 import React from "react";
 import img from "/images/car.png";
+import works from "/images/works.png";
+
 import { Link } from "react-router";
 
 const LandingPage = () => {
@@ -70,8 +72,8 @@ const LandingPage = () => {
             <div className="bg-red-500 text-white p-3">
               <h3 className="font-semibold">Agricultural Products</h3>
               <p className="text-sm">
-                We feature a range of agriculture produce like cocoa, shea
-                nuts, and fresh produce for all your needs.
+                We feature a range of agriculture produce like cocoa, shea nuts,
+                and fresh produce for all your needs.
               </p>
             </div>
           </div>
@@ -84,8 +86,8 @@ const LandingPage = () => {
             <div className="bg-yellow-500 text-white p-3">
               <h3 className="font-semibold">Artisan Crafts</h3>
               <p className="text-sm">
-                Discover unique African crafts you didnt know existed
-                including kente cloth, furniture, textiles.
+                Discover unique African crafts you didnt know existed including
+                kente cloth, furniture, textiles.
               </p>
             </div>
           </div>
@@ -118,52 +120,45 @@ const LandingPage = () => {
             </div>
           </div>
         </div>
+        <Link to="/signup">
+          <button className="px-7 py-2 bg-red-600 rounded-full cursor-pointer mt-8 font-bold text-white ">
+            Signup
+          </button>
+        </Link>
       </section>
 
       {/* Third Section */}
-      <section className="sticky top-0 min-h-screen w-full flex flex-col md:flex-row items-center justify-center bg-gray-100 p-6 gap-6">
-        <div className="flex-1 text-center md:text-left p-4">
-          <h1 className="text-3xl sm:text-4xl font-bold text-black font-mono mb-5">
-            Digital Showroom for Vendors & Retailers
-          </h1>
-          <p className="text-lg sm:text-xl font-mono text-black leading-relaxed">
-            Welcome to our Ad Media Library, the ultimate platform for vendors,
-            brands, and retailers to showcase their products. Our showroom
-            provides a centralized space where you can upload high-quality
-            product images and detailed specifications to attract customers and
-            business partners.
-          </p>
-          <Link to="/signup">
-            <button className="bg-[#7D9595] px-6 py-3 text-lg font-bold font-mono mt-5 rounded">
-              Sign Up
-            </button>
-          </Link>
+      {/* <section className="sticky top-0 min-h-screen w-full flex flex-col md:flex-row items-center justify-center bg-white p-6 gap-6">
+        <div className="w-full flex justify-center items-center">
+            <img
+            src={works}
+            alt=""
+            className="max-w-[75vw] h-auto"
+          />
         </div>
         <div className="flex-1 flex justify-center items-center">
-          <img
-            src="https://framerusercontent.com/images/dJvdzAxodMG2Uz94f6biE2WM.png"
-            alt=""
-            className="max-w-full h-auto"
-          />
+       
         </div>
-      </section>
+      </section> */}
 
       {/* Footer Section */}
-      <footer className="sticky top-0 min-h-screen w-full flex flex-col items-center justify-center bg-black text-white p-4">
-        <div className="flex flex-col items-center text-center">
+      <footer className="sticky top-0 min-h-screen w-full flex flex-col items-center justify-center  bg-white text-white p-4">
+        <div className="flex flex-col justify-center items-center text-center h-[90vh]">
           <img
-            width="300"
-            src="https://framerusercontent.com/images/QJbv2VFheaAQZxkNAxg0yejpmZk.png"
+            width="400"
+            src="https://images.unsplash.com/photo-1665686377065-08ba896d16fd?q=80&w=1470&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
             alt=""
           />
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold font-mono mt-4">
-            Only the best of everything you need
-          </h1>
+          <h1 className="font-[MuseoModerno] text-black text-xl sm:text-2xl md:text-4xl font-bold mt-4">
+Experience the excitement of the auction floor <span className="text-green-700">online</span>           </h1>
         </div>
-        <div className="mt-8 w-full text-center border-t border-white pt-4">
-          <p className="text-sm sm:text-base">© 2025 teamBots®. All rights reserved.</p>
+        <div className="mt-8 w-full text-center border-t border-gray-300 pt-4">
+          <p className="text-sm text-black sm:text-base">
+            © 2025 teamMNM®. All rights reserved.
+          </p>
         </div>
       </footer>
+      
     </div>
   );
 };

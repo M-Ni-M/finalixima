@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useCallback } from "react";
-import BackButton from "../components/BackButton";
 import { useParams } from "react-router-dom";
 import { apiGetAuctionById } from "../services/auction";
 import { 
@@ -8,9 +7,9 @@ import {
   joinAuctionRoom, 
   emitBid, 
   apiCreateBid,
-  apiGetBidsByAuction
 } from "../services/bids";
 import { toast } from "react-toastify";
+import Nav from "../components/Nav";
 
 const AuctionRoom = () => {
   const { id: auctionId } = useParams();
@@ -285,65 +284,65 @@ const AuctionRoom = () => {
   }
 
   return (
-    <div 
+    <> 
+    <Nav />
+    <section 
       style={{ backgroundImage: "url('/images/bg.png')" }}
-      className="min-h-screen bg-cover bg-center flex flex-col items-center justify-center"
+      className="min-h-screen pt-[20vh] bg-cover bg-center flex flex-col items-center justify-center py-6"
     >
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        {/* Back Button */}
-        <BackButton/>
-
-        {/* Main Content */}
-        <div className="flex flex-col lg:flex-row p-4 sm:p-6 gap-4 sm:gap-6 font-[MuseoModerno]">
+      <div className="w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex flex-col lg:flex-row gap-6 font-[MuseoModerno]">
+          
           {/* Property Info */}
-          <div className="w-full lg:w-1/2 h-auto min-h-[70vh] sm:h-[70vh] bg-white flex flex-col items-center rounded-xl border border-gray-300 shadow overflow-hidden">
-            <div className="w-full h-48 sm:h-2/3 bg-blue-500 rounded-t-xl">
+          <div className="flex-1 bg-white rounded-xl border border-gray-300 shadow-md overflow-hidden flex flex-col">
+            <div className="h-64 sm:h-80 md:h-96 w-full">
               {auction?.image && (
                 <img 
                   src={`https://res.cloudinary.com/dyfpxokoj/image/upload/${auction.image}`} 
                   alt={auction.title} 
-                  className="w-full h-full object-cover"
+                  className="object-cover w-full h-full"
                 />
               )}
             </div>
-            <div className="p-4 w-full text-center">
-              <h2 className="text-lg sm:text-xl font-semibold">{auction?.title || "Property"}</h2>
-              
-              {/* Countdown Timer - Made more visible */}
-              <div className={`py-2 px-4 rounded-lg ${auction.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"} inline-block font-bold my-2`}>
+            <div className="p-5 flex flex-col items-center text-center">
+              <h2 className="text-xl md:text-2xl font-semibold">{auction?.title || "Property"}</h2>
+  
+              <div className={`mt-3 py-2 px-4 rounded-lg text-sm md:text-base font-bold ${
+                auction.status === "active" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              }`}>
                 {auction.status === "active" ? `Bidding Ends in: ${formatTime(timeLeft)}` : "Auction Ended"}
               </div>
-              
-              <p className="text-base sm:text-lg font-bold mt-2">
+  
+              <p className="text-base md:text-lg font-bold mt-3">
                 Start Bid: {formatCurrency(startingBid)}
               </p>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1">
+              <p className="text-xs md:text-sm text-gray-400 mt-1">
                 Auction ID: {auctionId || "N/A"}
               </p>
-              <p className="text-xs sm:text-sm text-black">
+              <p className="text-xs md:text-sm text-black mt-1">
                 Location: {auction?.location || "Ghana, Accra"}
               </p>
+  
               {auction?.description && (
-                <p className="text-xs sm:text-sm text-gray-600 mt-2">
+                <p className="text-xs md:text-sm text-gray-600 mt-3">
                   {auction.description}
                 </p>
               )}
             </div>
           </div>
-
+  
           {/* Bidding Section */}
-          <div className="w-full lg:w-1/2 h-auto min-h-[50vh] sm:h-[70vh] bg-white border border-gray-300 rounded-xl shadow p-3 sm:p-4 flex flex-col">
-            <div className="mb-3 sm:mb-4">
-              <p className="text-red-500 font-bold uppercase text-sm sm:text-base">
+          <div className="flex-1 bg-white rounded-xl border border-gray-300 shadow-md flex flex-col p-5">
+            <div className="mb-4">
+              <p className="text-red-500 font-bold uppercase text-sm md:text-base">
                 Auction Information
               </p>
-              <h1 className="text-xl sm:text-2xl font-bold mt-1">
+              <h1 className="text-xl md:text-2xl font-bold mt-2">
                 Current Bid: {formatCurrency(currentBid)}
               </h1>
-              
-              {/* Winner Display */}
+  
               {auction.status === "ended" && winner && (
-                <div className="mt-2 p-3 bg-yellow-100 border-l-4 border-yellow-500 rounded-md">
+                <div className="mt-4 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-md">
                   <p className="font-bold text-yellow-800">
                     Auction Winner: {winner.userName || "Unknown"}
                   </p>
@@ -353,31 +352,34 @@ const AuctionRoom = () => {
                 </div>
               )}
             </div>
+  
+       {/* Bid History */}
+<div className="flex-1 bg-gray-100 rounded-xl p-4 mb-4 overflow-y-auto max-h-[60vh]">
+  <h2 className="font-semibold mb-3 text-sm md:text-base">Bid History</h2>
+  {bids.length > 0 ? (
+    <div className="space-y-2">
+      {bids.map((bid, index) => (
+        <div 
+          key={bid.id || index} 
+          className={`flex justify-between p-3 bg-white rounded-lg shadow ${index === 0 ? "border-l-4 border-green-500" : ""}`}
+        >
+          <p className="font-medium text-sm md:text-base">
+            {bid.userName || (bid.userId === socket?.id ? "You" : `User ${bid.userId.substring(0, 5)}...`)}
+          </p>
+          <p className="font-semibold text-sm md:text-base">
+            {formatCurrency(bid.bidAmount)}
+          </p>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p className="text-gray-500 text-sm md:text-base">No bids yet</p>
+  )}
+</div>
 
-            <div className="bg-gray-100 flex-1 rounded-xl p-3 sm:p-4 mb-3 sm:mb-4 overflow-y-auto">
-              <h2 className="font-semibold mb-2 text-sm sm:text-base">Bid History</h2>
-              {bids.length > 0 ? (
-                <div className="space-y-2">
-                  {bids.map((bid, index) => (
-                    <div 
-                      key={bid.id || index} 
-                      className={`flex justify-between p-2 sm:p-3 bg-white rounded-lg shadow ${index === 0 ? 'border-l-4 border-green-500' : ''}`}
-                    >
-                      <p className="font-medium text-sm sm:text-base">
-                        {bid.userName || (bid.userId === socket?.id ? "You" : `User ${bid.userId.substring(0, 5)}...`)}
-                      </p>
-                      <p className="font-semibold text-sm sm:text-base">
-                        {formatCurrency(bid.bidAmount)}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-gray-500 text-sm sm:text-base">No bids yet</p>
-              )}
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
+  
+            {/* Bidding Actions */}
+            <div className="flex flex-col sm:flex-row gap-3">
               <input
                 type="number"
                 id="bidAmount"
@@ -385,36 +387,44 @@ const AuctionRoom = () => {
                 value={bidAmount}
                 onChange={(e) => setBidAmount(e.target.value)}
                 disabled={auction.status !== "active" || bidding}
-                className={`flex-1 px-3 sm:px-4 py-2 text-sm sm:text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${auction.status !== "active" ? "bg-gray-100" : ""}`}
+                className={`flex-1 px-4 py-2 text-sm md:text-base border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${
+                  auction.status !== "active" ? "bg-gray-100" : ""
+                }`}
               />
-              <div className="flex gap-2 sm:gap-3">
+              <div className="flex gap-2">
                 <button
-                  className={`bg-red-500 hover:bg-red-600 text-white py-2 px-3 sm:px-4 rounded-lg text-sm sm:text-base flex-1 ${(auction.status !== "active" || bidding) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`flex-1 bg-red-500 hover:bg-red-600 text-white py-2 px-4 rounded-lg text-sm md:text-base ${
+                    (auction.status !== "active" || bidding) ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                   onClick={handleBid}
                   disabled={auction.status !== "active" || bidding}
                 >
                   {bidding ? "BIDDING..." : "PLACE BID"}
                 </button>
                 <button
-                  className={`bg-blue-500 hover:bg-blue-600 text-white py-2 px-3 sm:px-4 rounded-lg text-sm sm:text-base whitespace-nowrap ${(auction.status !== "active" || bidding) ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`flex-1 bg-blue-500 hover:bg-blue-600 text-white py-2 px-4 rounded-lg text-sm md:text-base whitespace-nowrap ${
+                    (auction.status !== "active" || bidding) ? "opacity-50 cursor-not-allowed" : ""
+                  }`}
                   onClick={handleQuickBid}
-                  disabled={auction.status!== "active" || bidding}
+                  disabled={auction.status !== "active" || bidding}
                 >
                   QUICK BID
                 </button>
               </div>
             </div>
-            
-            {/* Message when auction has ended */}
+  
+            {/* Auction Ended Notice */}
             {auction.status === "ended" && (
-              <div className="mt-3 p-2 text-center bg-gray-100 rounded-lg">
+              <div className="mt-4 p-3 text-center bg-gray-100 rounded-lg">
                 <p className="text-gray-700">Bidding is now closed for this auction.</p>
               </div>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </section>
+  </>
+  
   );
 };
 

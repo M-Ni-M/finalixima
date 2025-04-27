@@ -21,7 +21,13 @@ const ProductPage = () => {
       console.log("API response received:", response);
       
       if (response.data && response.data.items) {
-        setItems(response.data.items);
+        // Convert prices from dollars to cedis if needed (assuming 1 USD = ~12 GHS)
+        const itemsWithCediPrices = response.data.items.map(item => ({
+          ...item,
+          currentPrice: item.currentPrice * 12, // Conversion rate example
+          priceSymbol: '₵' // Add Ghanaian cedi symbol
+        }));
+        setItems(itemsWithCediPrices);
       } else {
         console.log("No items found in response");
         setItems([]);
@@ -61,47 +67,45 @@ const ProductPage = () => {
   return (
     <>
       <Nav />
-      <section className="w-full h-full flex flex-col items-center bg-[#F2F2F2] pt-30">
-        <div className="w-full px-10 flex items-start mt-5">
-          <button
-            type="button"
-            onClick={() => window.history.back()}
-            className="font-[MuseoModerno] font-bold text-2xl text-black hover:text-gray-600 cursor-pointer"
-          >
-            ← Go Back
-          </button>
-        </div>
-        <div className="flex items-center justify-evenly w-200 h-[7vh] rounded-full my-5 text-black bg-white text-l font-medium font-[MuseoModerno]">
-          <p 
-            className={`flex items-center justify-center cursor-pointer ${selectedCategory === "All" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("All")}
-          >
-            All
-          </p>
-          <p 
-            className={`cursor-pointer ${selectedCategory === "Agricultural products" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Agricultural products")}
-          >
-            Agricultural products
-          </p>
-          <p 
-            className={`cursor-pointer ${selectedCategory === "Artisan crafts" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Artisan crafts")}
-          >
-            Artisan crafts
-          </p>
-          <p 
-            className={`cursor-pointer ${selectedCategory === "Electronics & Gadgets" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Electronics & Gadgets")}
-          >
-           Electronics & Gadgets
-          </p>
-          <p 
-            className={`cursor-pointer ${selectedCategory === "Fashion & Home decor" ? "text-red-600" : "hover:text-red-600"}`}
-            onClick={() => handleCategoryChange("Fashion & Home decor")}
-          >
-           Fashion & Home decor
-          </p>
+      <section 
+        className="w-full min-h-[80vh] flex flex-col items-center bg-[#F2F2F2] pb-10 px-4 sm:px-6"
+        style={{ backgroundImage: "url('/images/bg.png')" }}
+      >
+        
+        {/* Category Selector - Responsive */}
+        <div className="w-fit mt-15 sm:mt-5">
+          <div className="flex flex-wrap items-center justify-center gap-2 w-full h-auto min-h-[5vh] rounded-full p-2 text-black bg-white text-xs sm:text-sm mt-25  md:text-base font-medium font-[MuseoModerno] border border-gray-300 shadow-md overflow-x-auto">
+            <p 
+              className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full cursor-pointer transition-colors ${selectedCategory === "All" ? "text-red-600 font-bold" : "hover:text-red-600"}`}
+              onClick={() => handleCategoryChange("All")}
+            >
+              All
+            </p>
+            <p 
+              className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full cursor-pointer transition-colors ${selectedCategory === "Agricultural products" ? "text-red-600 font-bold" : "hover:text-red-600"}`}
+              onClick={() => handleCategoryChange("Agricultural products")}
+            >
+              Agricultural
+            </p>
+            <p 
+              className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full cursor-pointer transition-colors ${selectedCategory === "Artisan crafts" ? "text-red-600 font-bold" : "hover:text-red-600"}`}
+              onClick={() => handleCategoryChange("Artisan crafts")}
+            >
+              Artisan crafts
+            </p>
+            <p 
+              className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full cursor-pointer transition-colors ${selectedCategory === "Electronics & Gadgets" ? "text-red-600 font-bold" : "hover:text-red-600"}`}
+              onClick={() => handleCategoryChange("Electronics & Gadgets")}
+            >
+              Electronics
+            </p>
+            <p 
+              className={`px-2 py-1 sm:px-3 sm:py-1 rounded-full cursor-pointer transition-colors ${selectedCategory === "Fashion & Home decor" ? "text-red-600 font-bold" : "hover:text-red-600"}`}
+              onClick={() => handleCategoryChange("Fashion & Home decor")}
+            >
+              Fashion & Decor
+            </p>
+          </div>
         </div>
 
         {isLoading ? (
@@ -123,9 +127,18 @@ const ProductPage = () => {
             <p className="font-[MuseoModerno] text-xl">No auction items found in this category.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-5 justify-center w-[80vw] min-h-screen py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 justify-center w-full max-w-6xl py-5">
             {filteredItems.map((item) => (
-              <ProductCard key={item.id} item={item} />
+              <ProductCard 
+                key={item.id} 
+                item={{
+                  ...item,
+                  // Ensure the price is displayed with Ghanaian cedi symbol
+                  priceSymbol: '₵',
+                  // Format price to Ghanaian standards if needed
+                  formattedPrice: `₵${item.currentPrice.toLocaleString('en-GH')}`
+                }} 
+              />
             ))}
           </div>
         )}
@@ -135,4 +148,3 @@ const ProductPage = () => {
 };
 
 export default ProductPage;
-

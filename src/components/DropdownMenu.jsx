@@ -1,84 +1,183 @@
-import React, { useState } from 'react';
+// src/pages/DashboardPage.jsx
+import React, { useEffect, useState } from "react";
+import { CiFilter } from "react-icons/ci";
+import { Link } from "react-router-dom";
+import AddItemModal from "../components/AdditemModal";
+import AuctionsTable from "../components/AuctionsTable";
+import BackButton from "../components/BackButton";
+import { apiCreateAuction, apiGetUserAuctions } from "../services/auction";
+import DropdownMenu from "../components/DropdownMenu"; // Import DropdownMenu
 
-const DropdownMenu = () => {
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+const DashboardPage = () => {
+  const [products, setProducts] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [totalItems, setTotalItems] = useState(0);
+  
+  const fetchAuctions = async () => {
+    setIsLoading(true);
+    try {
+      const response = await apiGetUserAuctions();
+      if (response.data && response.data.items) {
+        const formattedItems = response.data.items.map(item => ({
+          id: item.id,
+          name: item.title,
+          image: item.image
+            ? `https://res.cloudinary.com/dyfpxokoj/image/upload/${item.image}`
+            : "https://via.placeholder.com/60?text=No+Image",
+          date: new Date(item.createdAt).toLocaleDateString(),
+          status: new Date(item.endTime) > new Date() ? "Active" : "Completed",
+          startingBid: item.startingBid,
+          currentBid: item.currentBid || item.startingBid,
+          category: item.category || "Uncategorized",
+          description: item.description,
+          endTime: new Date(item.endTime).toLocaleDateString(),
+        }));
 
-  const toggleDropdown = () => {
-    setIsDropdownOpen(!isDropdownOpen);
+        setProducts(formattedItems);
+        setTotalItems(formattedItems.length);
+      } else {
+        setProducts([]);
+        setTotalItems(0);
+      }
+    } catch (err) {
+      console.error("Error fetching auctions:", err);
+      setError("Failed to load auction items. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-    setIsDropdownOpen(false); // Close the dropdown when opening the modal
+  useEffect(() => {
+    fetchAuctions();
+  }, []);
+
+  const handleAddItem = async (formData) => {
+    try {
+      await apiCreateAuction(formData);
+      fetchAuctions();
+      setShowModal(false);
+    } catch (error) {
+      console.error("Error adding item:", error);
+    }
   };
 
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
+  const filteredProducts = searchTerm
+    ? products.filter(product =>
+        product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        product.category.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : products;
 
-  const userProfile = {
-    username: 'JohnDoe',
-    email: 'johndoe@example.com',
-    residentialAddress: '123 Main St, Anytown, USA',
-    phoneNumber: '+1 (555) 123-4567',
-  };
+  const activeAuctions = products.filter(item => item.status === "Active").length;
+  const completedAuctions = products.filter(item => item.status === "Completed").length;
 
   return (
-    <div className="relative">
-      <div
-        onClick={toggleDropdown}
-        className="font-[MuseoModerno] flex items-center justify-center w-[3vw] h-[3vw] rounded-[50%] bg-amber-50 cursor-pointer"
-      >
-        M
-      </div>
-      {isDropdownOpen && (
-        <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-lg z-10">
-          <button
-            onClick={openModal}
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-          >
-            Profile
-          </button>
-          <button
-            onClick={() => alert('Logout')}
-            className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-          >
-            Logout
-          </button>
+    <section className="flex flex-col w-full h-screen">
+      {/* Navbar */}
+      <div className="flex flex-wrap items-center bg-red-600 w-full fixed p-3 justify-between z-50">
+        {/* Logo and Title */}
+        <div className="flex items-center w-1/2 sm:w-1/3 md:w-1/4">
+          <img src="/images/bb.png" width={40} alt="Logo" className="mr-2" />
+          <h1 className="font-[MuseoModerno] font-semibold text-lg sm:text-xl md:text-2xl text-white">
+            Dashboard
+          </h1>
         </div>
-      )}
-      {isModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-opacity-50 z-20">
-          <div className="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
-            <h2 className="text-2xl font-bold mb-4">Profile</h2>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Username:</label>
-              <p className="text-gray-700">{userProfile.username}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Email:</label>
-              <p className="text-gray-700">{userProfile.email}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Residential Address:</label>
-              <p className="text-gray-700">{userProfile.residentialAddress}</p>
-            </div>
-            <div className="mb-4">
-              <label className="block text-gray-700 text-sm font-bold mb-2">Phone Number:</label>
-              <p className="text-gray-700">{userProfile.phoneNumber}</p>
-            </div>
-            <button
-              onClick={closeModal}
-              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-            >
-              Close
-            </button>
+
+        {/* Dropdown Menu for Navigation */}
+        <div className="relative flex justify-center items-center w-1/2 sm:w-1/3 md:w-1/4">
+          <DropdownMenu /> {/* Use the imported DropdownMenu here */}
+        </div>
+      </div>
+
+      {/* Main Content */}
+      <div className="flex flex-col w-full min-h-fit gap-5 p-5 sm:p-10 pt-40 sm:pt-20 justify-center bg-gray-100" style={{ backgroundImage: "url('/images/bg.png')" }}>
+        <BackButton />
+
+        {/* Stats Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 w-full">
+          <div className="flex flex-col w-full rounded-2xl border gap-5 p-5 border-gray-300 bg-white">
+            <div className="w-10 h-10 rounded-xl bg-gray-100"></div>
+            <p className="font-[MuseoModerno] font-medium text-sm sm:text-base">
+              Total Auctioned Items
+            </p>
+            <h1 className="font-[MuseoModerno] font-bold text-xl sm:text-2xl">
+              {totalItems}
+            </h1>
+          </div>
+          <div className="flex flex-col w-full rounded-2xl border gap-5 p-5 border-gray-300 bg-white">
+            <div className="w-10 h-10 rounded-xl bg-gray-100"></div>
+            <p className="font-[MuseoModerno] font-medium text-sm sm:text-base">
+              Active Auctions
+            </p>
+            <h1 className="font-[MuseoModerno] font-bold text-xl sm:text-2xl">
+              {activeAuctions}
+            </h1>
+          </div>
+          <div className="flex flex-col w-full rounded-2xl border gap-5 p-5 border-gray-300 bg-white">
+            <div className="w-10 h-10 rounded-xl bg-gray-100"></div>
+            <p className="font-[MuseoModerno] font-medium text-sm sm:text-base">
+              Completed Auctions
+            </p>
+            <h1 className="font-[MuseoModerno] font-bold text-xl sm:text-2xl">
+              {completedAuctions}
+            </h1>
           </div>
         </div>
-      )}
-    </div>
+
+        {/* Search and Add Item Button */}
+        <div className="flex flex-col sm:flex-row justify-between gap-5 mt-5">
+          <div className="flex items-center gap-5 w-full sm:w-2/3">
+            <button className="rounded-md bg-white border border-gray-300 p-2 flex items-center justify-center">
+              <CiFilter />
+            </button>
+            <input
+              className="bg-white rounded-md border border-gray-300 p-2 w-full sm:w-3/4 pl-4 font-medium"
+              placeholder="Search"
+              type="search"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <button
+            onClick={() => setShowModal(true)}
+            className="p-2 px-6 bg-red-600 rounded-md font-[MuseoModerno] font-medium text-sm sm:text-base text-white cursor-pointer"
+          >
+            Add Item
+          </button>
+        </div>
+
+        {/* Auction Table */}
+        {isLoading ? (
+          <div className="text-center py-10">
+            <p className="font-[MuseoModerno] text-lg">Loading auction items...</p>
+          </div>
+        ) : error ? (
+          <div className="text-center py-10">
+            <p className="font-[MuseoModerno] text-lg text-red-600">{error}</p>
+            <button
+              onClick={fetchAuctions}
+              className="mt-4 p-2 bg-red-600 text-white rounded-md"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : (
+          <AuctionsTable products={filteredProducts} onRefresh={fetchAuctions} />
+        )}
+
+        {/* Add Item Modal */}
+        {showModal && (
+          <AddItemModal
+            onClose={() => setShowModal(false)}
+            onSubmit={handleAddItem}
+          />
+        )}
+      </div>
+    </section>
   );
 };
 
-export default DropdownMenu;
+export default DashboardPage;
