@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { handleGoogleCallback } from '../src/services/auth';
+import { handleGoogleCallback } from '../services/auth';
 import { toast } from 'react-toastify';
 
 const GoogleCallback = () => {
