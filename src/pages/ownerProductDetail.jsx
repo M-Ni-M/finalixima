@@ -2,13 +2,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
 import Nav from "../components/Nav";
 import Carousel from "../components/Carousel";
-import { apiGetAuctionById, apiUpdateAuction } from "../services/auction";
+import { apiGetAuctionById, apiStartAuction, apiUpdateAuction } from "../services/auction";
+import Countdown from 'react-countdown';
 
 const OwnerProductDetail = () => {
   const params = useParams();
   const { id } = params;
   const navigate = useNavigate();
-
 
   // State variables
   const [item, setItem] = useState(null);
@@ -16,6 +16,7 @@ const OwnerProductDetail = () => {
   const [error, setError] = useState(null);
   const [isOwner, setIsOwner] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
+  const [auctionId, setAuctionId] = useState(null);
   const [editFormData, setEditFormData] = useState({
     title: "",
     description: "",
@@ -26,6 +27,7 @@ const OwnerProductDetail = () => {
   });
   const [previewImage, setPreviewImage] = useState(null);
   const [auctionTimeReached, setAuctionTimeReached] = useState(false);
+  const [timeRemaining, setTimeRemaining] = useState(null);
 
   useEffect(() => {
     const fetchItemDetails = async () => {
@@ -38,6 +40,7 @@ const OwnerProductDetail = () => {
         }
 
         const response = await apiGetAuctionById(id);
+        setAuctionId(response.data._id || response.data.id);
         console.log("response", response);
 
         if (response.data) {
@@ -55,12 +58,7 @@ const OwnerProductDetail = () => {
           const isUserOwner = userId === response.data.id;
           setIsOwner(isUserOwner);
 
-          // Check if auction start time has been reached
-          if (response.data.startTime) {
-            const now = new Date();
-            const startTime = new Date(response.data.startTime);
-            setAuctionTimeReached(now >= startTime);
-          }
+        
         } else {
           setError("Item details not found");
         }
@@ -74,93 +72,80 @@ const OwnerProductDetail = () => {
 
     fetchItemDetails();
 
-    // Set up interval to check if auction time has been reached (check every 15 seconds)
-    const intervalId = setInterval(() => {
-      if (item && item.endTime) {
-        const now = new Date();
-        const startTime = new Date(item.endTime);
-        setAuctionTimeReached(now >= startTime);
-      }
-    }, 15000);
-
-    return () => clearInterval(intervalId);
+    return () => {};
   }, [id, navigate]);
 
-  // Modify the handleStartAuction function
-// const handleStartAuction = async () => {
-//   try {
-//     // Calculate the end time (e.g., 24 hours from now)
-//     const now = new Date();
-//     const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+  // Set up timer countdown if auction is active
+  useEffect(() => {
+    let timerId;
     
-//     // Update item status to active and set the endTime
-//     const updateResponse = await apiUpdateAuction(id, {
-//       isActive: true,
-//       startTime: now.toISOString(),
-//       endTime: endTime.toISOString()
-//     });
-
-//     if (updateResponse.data) {
-//       // Update local state
-//       setItem({
-//         ...item,
-//         isActive: true,
-//         startTime: now.toISOString(),
-//         endTime: endTime.toISOString()
-//       });
-      
-//       // Navigate to auction room or refresh the page
-//       navigate(`/auction-room/${id}`);
-//     }
-//   } catch (error) {
-//     console.error("Error starting auction:", error);
-//   }
-// };
-
-
-// Modify handleStartAuction to emit a socket event
-const handleStartAuction = async () => {
-  try {
-    // Calculate the end time (e.g., 24 hours from now)
-    const now = new Date();
-    const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+    if (item?.status === "active" && timeRemaining !== null) {
+      // Update timer every second
+      timerId = setInterval(() => {
+        setTimeRemaining(prevTime => {
+          const newTime = prevTime - 1000;
+          
+          // If time is up, check if the auction should be closed
+          if (newTime <= 0) {
+            clearInterval(timerId);
+            
+            // Check if the actual end time has passed
+            const now = new Date();
+            const endTime = new Date(item.endTime);
+            
+            if (now >= endTime) {
+              // Update local state to show auction as closed
+              setItem(prev => ({
+                ...prev,
+                status: "closed"
+              }));
+            }
+            
+            return 0;
+          }
+          
+          return newTime;
+        });
+      }, 1000);
+    }
     
-    // Update item status to active and set the endTime
-    const updateResponse = await apiUpdateAuction(id, {
-      isActive: true,
-      startTime: now.toISOString(),
-      endTime: endTime.toISOString()
-    });
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [item, timeRemaining]);
 
-    if (updateResponse.data) {
-      // Update local state
-      setItem({
+  // Modified handleStartAuction to set 2-minute duration
+  const handleStartAuction = async () => {
+    try {
+
+      const response = await apiStartAuction(auctionId) 
+      console.log("start auction:", response)
+      // Calculate the end time (2 minutes from now)
+      const now = new Date();
+      const endTime = new Date(now.getTime() + 300 * 1000); // 2 minutes
+  
+      // Directly update local item state
+      setItem(item => ({
         ...item,
-        isActive: true,
+        status: "active",
         startTime: now.toISOString(),
         endTime: endTime.toISOString()
-      });
-      
-      // Emit socket event that auction has started
-      if (socket) {
-        socket.emit("auctionStarted", {
-          auctionId: id,
-          title: item.title,
-          startTime: now.toISOString(),
-          endTime: endTime.toISOString()
-        });
-        
-        // Join the auction room as the owner
-        socket.emit("joinAuction", id);
-      }
-      
-      // Navigate to auction room
-      navigate(`/room/${id}`);
+      }));
+  
+      // Set the timer for countdown (2 minutes in milliseconds)
+      setTimeRemaining(300 * 1000);
+  
+      // Optionally: Start navigating to auction room if you want
+      // navigate(`/room/${id}`);
+    } catch (error) {
+      console.error("Error starting auction:", error);
     }
-  } catch (error) {
-    console.error("Error starting auction:", error);
-  }
-};
+  };
+  
+  
+
   const handleEditClick = () => {
     setIsEditing(true);
   };
@@ -240,36 +225,15 @@ const handleStartAuction = async () => {
     return new Date(dateString).toLocaleString();
   };
 
-  // Calculate time left until auction end
-  const calculateTimeLeft = (endTime) => {
-    if (!endTime) return "N/A";
-
-    const now = new Date();
-    const end = new Date(endTime);
-    const timeLeft = end - now;
-
-    if (timeLeft <= 0) return "Ended";
-
-    const minutes = Math.floor(timeLeft / (1000 * 60));
-    const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
-
-    return `${minutes}m : ${seconds.toString().padStart(2, "0")}s`;
-  };
-
-  // Calculate time until auction start
-  const calculateTimeUntilStart = (startTime) => {
-    if (!startTime) return "Not scheduled";
-
-    const now = new Date();
-    const start = new Date(startTime);
-    const timeUntil = start - now;
-
-    if (timeUntil <= 0) return "Ready to start";
-
-    const minutes = Math.floor(timeUntil / (1000 * 60));
-    const seconds = Math.floor((timeUntil % (1000 * 60)) / 1000);
-
-    return `${minutes}m : ${seconds.toString().padStart(2, "0")}s`;
+  // Format remaining time as mm:ss
+  const formatTimeRemaining = (milliseconds) => {
+    if (!milliseconds || milliseconds <= 0) return "00:00";
+    
+    const totalSeconds = Math.floor(milliseconds / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    
+    return `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   if (loading) {
@@ -301,13 +265,6 @@ const handleStartAuction = async () => {
       </>
     );
   }
-
-  // const auctionStatus =
-  //   new Date(item.endTime) > new Date()
-  //     ? item.isActive
-  //       ? "Active"
-  //       : "Upcoming"
-  //     : "Ended";
 
   return (
     <>
@@ -494,6 +451,7 @@ const handleStartAuction = async () => {
                 <button
                   onClick={handleEditClick}
                   className="px-4 py-1 bg-blue-600 text-white text-sm rounded-md hover:bg-blue-700"
+                  disabled={item.status === "active" || item.status === "closed"}
                 >
                   Edit Item
                 </button>
@@ -551,50 +509,45 @@ const handleStartAuction = async () => {
                   <strong>No. of Bids:</strong> {item.bids?.length || 0}
                 </p>
 
-                {item?.status === "upcoming" && (
-                  <p>
-                    <strong>Time left:</strong>{" "}
-                    <span className="text-blue-600 font-semibold">
-                      {calculateTimeUntilStart(item.endTime)}
-                    </span>
-                  </p>
-                )}
-
-                {(item?.status === "active" || item?.status === "closed") && (
-                  <p>
-                    <strong>Time left:</strong>{" "}
-                    <span
-                      className={`font-semibold ${
-                        item?.status === "closed"
-                          ? "text-red-600"
-                          : "text-green-600"
-                      }`}
-                    >
-                      {calculateTimeLeft(item.endTime)}
-                    </span>
-                  </p>
-                )}
-
                 <p>
                   <strong>Current bidder:</strong>{" "}
                   <span>{item.currentBidder || "No bids yet"}</span>
                 </p>
 
+                {item?.status === "active" && (
+                  <div className="bg-green-100 border border-green-400 p-4 rounded-md">
+                    <p className="text-green-800 mb-2">
+                      {/* <strong>Time Remaining:</strong> {formatTimeRemaining(new Date(item.endTime).valueOf()-Date.now())} */}
+                      <strong>Time Remaining:</strong> <Countdown date={new Date(item.endTime).valueOf()}/>
+                    </p>
+                    <div className="bg-gray-200 rounded-full h-2.5">
+                      <div 
+                        className="bg-green-600 h-2.5 rounded-full" 
+                        style={{ width: `${item.endTime ? (((new Date(item.endTime).valueOf()-Date.now())|| 0) / 300000) * 100 : 0}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="pt-5">
                   {item?.status === "upcoming" && (
-                    <button
-                      onClick={handleStartAuction}
-                      // Remove the disabled attribute
-                      className="w-full py-3 font-bold rounded-md bg-yellow-500 hover:bg-yellow-600 cursor-pointer"
-                    >
-                      Start Auction Now
-                    </button>
+                    <div>
+                      <button
+                        onClick={handleStartAuction}
+                        className="w-full py-3 font-bold rounded-md bg-yellow-500 hover:bg-yellow-600 cursor-pointer"
+                      >
+                        Start Auction Now
+                      </button>
+                      <p className="text-xs text-gray-600 pt-2">
+                        Starting the auction will set a 2-minute duration for bidding.
+                      </p>
+                    </div>
                   )}
                   {item?.status === "active" && (
                     <div className="bg-green-100 border border-green-400 p-4 rounded-md">
                       <p className="text-green-800">
                         Your auction is currently active. Bidders can place bids
-                        until the end time.
+                        until the 2-minute timer ends.
                       </p>
                       <button
                         onClick={() => navigate(`/room/${id}`)}
@@ -604,7 +557,7 @@ const handleStartAuction = async () => {
                       </button>
                     </div>
                   )}
-                  {item?.status === "closed" && (
+                  {item?.status === "ended" && (
                     <div className="bg-gray-100 border border-gray-400 p-4 rounded-md">
                       <p className="text-gray-800">
                         This auction has ended.{" "}
@@ -631,13 +584,19 @@ const handleStartAuction = async () => {
 
 export default OwnerProductDetail;
 
+
+
+// import React, { useEffect, useState } from "react";
+// import { useNavigate, useParams } from "react-router";
+// import Nav from "../components/Nav";
+// import Carousel from "../components/Carousel";
+// import { apiGetAuctionById, apiUpdateAuction } from "../services/auction";
+
 // const OwnerProductDetail = () => {
 //   const params = useParams();
-//     console.log("All URL params:", params);  // Debug: Log all params
-
-//     const { id } = params;
-//     console.log("ID from params:", id);
+//   const { id } = params;
 //   const navigate = useNavigate();
+
 
 //   // State variables
 //   const [item, setItem] = useState(null);
@@ -651,7 +610,7 @@ export default OwnerProductDetail;
 //     category: "",
 //     startingBid: 0,
 //     condition: "",
-//     image: null
+//     image: null,
 //   });
 //   const [previewImage, setPreviewImage] = useState(null);
 //   const [auctionTimeReached, setAuctionTimeReached] = useState(false);
@@ -667,7 +626,7 @@ export default OwnerProductDetail;
 //         }
 
 //         const response = await apiGetAuctionById(id);
-//         console.log("response",response)
+//         console.log("response", response);
 
 //         if (response.data) {
 //           setItem(response.data);
@@ -683,11 +642,6 @@ export default OwnerProductDetail;
 //           const userId = localStorage.getItem("userId");
 //           const isUserOwner = userId === response.data.id;
 //           setIsOwner(isUserOwner);
-
-//           // If not the owner, redirect to normal product detail
-//         //   if (!isUserOwner) {
-//         //     navigate(`/detail/${id}`);
-//         //   }
 
 //           // Check if auction start time has been reached
 //           if (response.data.startTime) {
@@ -708,34 +662,93 @@ export default OwnerProductDetail;
 
 //     fetchItemDetails();
 
-//     // Set up interval to check if auction time has been reached
+//     // Set up interval to check if auction time has been reached (check every 15 seconds)
 //     const intervalId = setInterval(() => {
-//       if (item && item.startTime) {
+//       if (item && item.endTime) {
 //         const now = new Date();
-//         const startTime = new Date(item.startTime);
+//         const startTime = new Date(item.endTime);
 //         setAuctionTimeReached(now >= startTime);
 //       }
-//     }, 60000); // Check every minute
+//     }, 15000);
 
 //     return () => clearInterval(intervalId);
 //   }, [id, navigate]);
 
-//   const handleStartAuction = async () => {
-//     try {
-//       // Update item status to active
-//       const updateResponse = await apiUpdateAuction(id, {
-//         isActive: true
+//   // Modify the handleStartAuction function
+// // const handleStartAuction = async () => {
+// //   try {
+// //     // Calculate the end time (e.g., 24 hours from now)
+// //     const now = new Date();
+// //     const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+    
+// //     // Update item status to active and set the endTime
+// //     const updateResponse = await apiUpdateAuction(id, {
+// //       isActive: true,
+// //       startTime: now.toISOString(),
+// //       endTime: endTime.toISOString()
+// //     });
+
+// //     if (updateResponse.data) {
+// //       // Update local state
+// //       setItem({
+// //         ...item,
+// //         isActive: true,
+// //         startTime: now.toISOString(),
+// //         endTime: endTime.toISOString()
+// //       });
+      
+// //       // Navigate to auction room or refresh the page
+// //       navigate(`/auction-room/${id}`);
+// //     }
+// //   } catch (error) {
+// //     console.error("Error starting auction:", error);
+// //   }
+// // };
+
+
+// // Modify handleStartAuction to emit a socket event
+// const handleStartAuction = async () => {
+//   try {
+//     // Calculate the end time (e.g., 24 hours from now)
+//     const now = new Date();
+//     const endTime = new Date(now.getTime() + 24 * 60 * 60 * 1000); // 24 hours from now
+    
+//     // Update item status to active and set the endTime
+//     const updateResponse = await apiUpdateAuction(id, {
+//       isActive: true,
+//       startTime: now.toISOString(),
+//       endTime: endTime.toISOString()
+//     });
+
+//     if (updateResponse.data) {
+//       // Update local state
+//       setItem({
+//         ...item,
+//         isActive: true,
+//         startTime: now.toISOString(),
+//         endTime: endTime.toISOString()
 //       });
-
-//       if (updateResponse.data) {
-//         // Navigate to auction room or refresh the page
-//         navigate(`/auction-room/${id}`);
+      
+//       // Emit socket event that auction has started
+//       if (socket) {
+//         socket.emit("auctionStarted", {
+//           auctionId: id,
+//           title: item.title,
+//           startTime: now.toISOString(),
+//           endTime: endTime.toISOString()
+//         });
+        
+//         // Join the auction room as the owner
+//         socket.emit("joinAuction", id);
 //       }
-//     } catch (error) {
-//       console.error("Error starting auction:", error);
+      
+//       // Navigate to auction room
+//       navigate(`/room/${id}`);
 //     }
-//   };
-
+//   } catch (error) {
+//     console.error("Error starting auction:", error);
+//   }
+// };
 //   const handleEditClick = () => {
 //     setIsEditing(true);
 //   };
@@ -760,9 +773,9 @@ export default OwnerProductDetail;
 
 //     if (type === "file") {
 //       const file = e.target.files[0];
-//       setEditFormData(prev => ({
+//       setEditFormData((prev) => ({
 //         ...prev,
-//         image: file
+//         image: file,
 //       }));
 
 //       // Create preview URL for the image
@@ -774,14 +787,14 @@ export default OwnerProductDetail;
 //         reader.readAsDataURL(file);
 //       }
 //     } else if (name === "startingBid") {
-//       setEditFormData(prev => ({
+//       setEditFormData((prev) => ({
 //         ...prev,
-//         [name]: parseFloat(value)
+//         [name]: parseFloat(value),
 //       }));
 //     } else {
-//       setEditFormData(prev => ({
+//       setEditFormData((prev) => ({
 //         ...prev,
-//         [name]: value
+//         [name]: value,
 //       }));
 //     }
 //   };
@@ -815,39 +828,6 @@ export default OwnerProductDetail;
 //     return new Date(dateString).toLocaleString();
 //   };
 
-//   // Calculate time left until auction end
-//   const calculateTimeLeft = (endTime) => {
-//     if (!endTime) return "N/A";
-
-//     const now = new Date();
-//     const end = new Date(endTime);
-//     const timeLeft = end - now;
-
-//     if (timeLeft <= 0) return "Ended";
-
-//     const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
-//     const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-//     const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
-
-//     return `${days}D ${hours}H ${minutes}min`;
-//   };
-
-//   // Calculate time until auction start
-//   const calculateTimeUntilStart = (startTime) => {
-//     if (!startTime) return "Not scheduled";
-
-//     const now = new Date();
-//     const start = new Date(startTime);
-//     const timeUntil = start - now;
-
-//     if (timeUntil <= 0) return "Ready to start";
-
-//     const days = Math.floor(timeUntil / (1000 * 60 * 60 * 24));
-//     const hours = Math.floor((timeUntil % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-//     const minutes = Math.floor((timeUntil % (1000 * 60 * 60)) / (1000 * 60));
-
-//     return `${days}D ${hours}H ${minutes}min`;
-//   };
 
 //   if (loading) {
 //     return (
@@ -865,7 +845,9 @@ export default OwnerProductDetail;
 //       <>
 //         <Nav />
 //         <section className="w-full h-screen flex flex-col items-center justify-center bg-[#F2F2F2] pt-[4vh]">
-//           <p className="font-[MuseoModerno] text-xl text-red-600">{error || "Item not found"}</p>
+//           <p className="font-[MuseoModerno] text-xl text-red-600">
+//             {error || "Item not found"}
+//           </p>
 //           <button
 //             onClick={() => navigate(-1)}
 //             className="mt-5 p-3 bg-red-600 text-white rounded-md"
@@ -876,12 +858,6 @@ export default OwnerProductDetail;
 //       </>
 //     );
 //   }
-
-//   const auctionStatus = new Date(item.endTime) > new Date()
-//     ? item.isActive
-//       ? "Active"
-//       : "Upcoming"
-//     : "Ended";
 
 //   return (
 //     <>
@@ -898,20 +874,25 @@ export default OwnerProductDetail;
 
 //           <div className="bg-yellow-100 px-4 py-2 rounded-lg border border-yellow-400">
 //             <p className="font-[MuseoModerno] text-sm">
-//               <span className="font-bold">Owner View</span> - You are viewing this item as its owner
+//               <span className="font-bold">Owner View</span> - You are viewing
+//               this item as its owner
 //             </p>
 //           </div>
 //         </div>
 
 //         {isEditing ? (
 //           <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-8">
-//             <h2 className="font-[MuseoModerno] text-2xl font-bold mb-6">Edit Item</h2>
+//             <h2 className="font-[MuseoModerno] text-2xl font-bold mb-6">
+//               Edit Item
+//             </h2>
 
 //             <form onSubmit={handleSaveChanges} className="space-y-6">
 //               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 //                 <div className="space-y-4">
 //                   <div>
-//                     <label className="block font-[MuseoModerno] font-medium mb-2">Title</label>
+//                     <label className="block font-[MuseoModerno] font-medium mb-2">
+//                       Title
+//                     </label>
 //                     <input
 //                       type="text"
 //                       id="title"
@@ -924,7 +905,9 @@ export default OwnerProductDetail;
 //                   </div>
 
 //                   <div>
-//                     <label className="block font-[MuseoModerno] font-medium mb-2">Category</label>
+//                     <label className="block font-[MuseoModerno] font-medium mb-2">
+//                       Category
+//                     </label>
 //                     <select
 //                       name="category"
 //                       id="category"
@@ -943,7 +926,9 @@ export default OwnerProductDetail;
 //                   </div>
 
 //                   <div>
-//                     <label className="block font-[MuseoModerno] font-medium mb-2">Condition</label>
+//                     <label className="block font-[MuseoModerno] font-medium mb-2">
+//                       Condition
+//                     </label>
 //                     <select
 //                       name="condition"
 //                       id="condition"
@@ -961,7 +946,9 @@ export default OwnerProductDetail;
 //                   </div>
 
 //                   <div>
-//                     <label className="block font-[MuseoModerno] font-medium mb-2">Starting Bid ($)</label>
+//                     <label className="block font-[MuseoModerno] font-medium mb-2">
+//                       Starting Bid ($)
+//                     </label>
 //                     <input
 //                       type="number"
 //                       id="startingBid"
@@ -978,7 +965,9 @@ export default OwnerProductDetail;
 
 //                 <div className="space-y-4">
 //                   <div>
-//                     <label className="block font-[MuseoModerno] font-medium mb-2">Description</label>
+//                     <label className="block font-[MuseoModerno] font-medium mb-2">
+//                       Description
+//                     </label>
 //                     <textarea
 //                       name="description"
 //                       id="description"
@@ -990,7 +979,9 @@ export default OwnerProductDetail;
 //                   </div>
 
 //                   <div>
-//                     <label className="block font-[MuseoModerno] font-medium mb-2">Image</label>
+//                     <label className="block font-[MuseoModerno] font-medium mb-2">
+//                       Image
+//                     </label>
 //                     <input
 //                       type="file"
 //                       name="image"
@@ -1002,7 +993,9 @@ export default OwnerProductDetail;
 
 //                     {previewImage && (
 //                       <div className="mt-2">
-//                         <p className="font-[MuseoModerno] text-sm mb-1">Preview:</p>
+//                         <p className="font-[MuseoModerno] text-sm mb-1">
+//                           Preview:
+//                         </p>
 //                         <img
 //                           src={previewImage}
 //                           alt="Preview"
@@ -1084,43 +1077,29 @@ export default OwnerProductDetail;
 //               <div className="space-y-0.5 p-5 text-l flex flex-col gap-5">
 //                 <p>
 //                   <strong>Status:</strong>{" "}
-//                   <span className={`px-2 py-1 rounded-full text-sm ${
-//                     auctionStatus === "Active"
-//                       ? "bg-green-100 text-green-800"
-//                       : auctionStatus === "Ended"
-//                       ? "bg-red-100 text-red-800"
-//                       : "bg-yellow-100 text-yellow-800"
-//                   }`}>
-//                     {auctionStatus}
+//                   <span
+//                     className={`px-2 py-1 rounded-full text-sm ${
+//                       item?.status === "active"
+//                         ? "bg-green-100 text-green-800"
+//                         : item?.status === "closed"
+//                         ? "bg-red-100 text-red-800"
+//                         : "bg-yellow-100 text-yellow-800"
+//                     }`}
+//                   >
+//                     {item?.status}
 //                   </span>
 //                 </p>
 //                 <p>
-//                   <strong>Starting Bid:</strong> ${item.startingBid?.toFixed(2)} USD
+//                   <strong>Starting Bid:</strong> ${item?.startingBid}{" "}
+//                   USD
 //                 </p>
 //                 <p>
-//                   <strong>Current Bid:</strong> ${(item.currentBid || item.startingBid)?.toFixed(2)} USD
+//                   <strong>Current Bid:</strong> $
+//                   {(item.currentBid || item.startingBid)} USD
 //                 </p>
 //                 <p>
 //                   <strong>No. of Bids:</strong> {item.bids?.length || 0}
 //                 </p>
-
-//                 {auctionStatus === "Upcoming" && (
-//                   <p>
-//                     <strong>Time until start:</strong>{" "}
-//                     <span className="text-blue-600 font-semibold">
-//                       {calculateTimeUntilStart(item.endTime)}
-//                     </span>
-//                   </p>
-//                 )}
-
-//                 {(auctionStatus === "Active" || auctionStatus === "Ended") && (
-//                   <p>
-//                     <strong>Time left:</strong>{" "}
-//                     <span className={`font-semibold ${auctionStatus === "Ended" ? "text-red-600" : "text-green-600"}`}>
-//                       {calculateTimeLeft(item.endTime)}
-//                     </span>
-//                   </p>
-//                 )}
 
 //                 <p>
 //                   <strong>Current bidder:</strong>{" "}
@@ -1128,40 +1107,43 @@ export default OwnerProductDetail;
 //                 </p>
 
 //                 <div className="pt-5">
-//                   {auctionStatus === "Upcoming" && (
+//                   {item?.status === "upcoming" && (
 //                     <button
 //                       onClick={handleStartAuction}
-//                       disabled={!auctionTimeReached}
-//                       className={`w-full py-3 font-bold rounded-md ${
-//                         auctionTimeReached
-//                           ? "bg-yellow-500 hover:bg-yellow-600 cursor-pointer"
-//                           : "bg-gray-300 cursor-not-allowed"
-//                       }`}
+//                       // Remove the disabled attribute
+//                       className="w-full py-3 font-bold rounded-md bg-yellow-500 hover:bg-yellow-600 cursor-pointer"
 //                     >
-//                       {auctionTimeReached ? "Start Auction" : "Waiting for start time"}
+//                       Start Auction Now
 //                     </button>
 //                   )}
-
-//                   {auctionStatus === "Active" && (
+//                   {item?.status === "active" && (
 //                     <div className="bg-green-100 border border-green-400 p-4 rounded-md">
 //                       <p className="text-green-800">
-//                         Your auction is currently active. Bidders can place bids until the end time.
+//                         Your auction is currently active. Bidders can place bids
+//                         until the end time.
 //                       </p>
+//                       <button
+//                         onClick={() => navigate(`/room/${id}`)}
+//                         className="w-full py-2 mt-3 bg-green-500 text-white font-bold rounded-md hover:bg-green-600"
+//                       >
+//                         View Auction Room
+//                       </button>
 //                     </div>
 //                   )}
-
-//                   {auctionStatus === "Ended" && (
+//                   {item?.status === "closed" && (
 //                     <div className="bg-gray-100 border border-gray-400 p-4 rounded-md">
 //                       <p className="text-gray-800">
-//                         This auction has ended. {item.currentBidder
+//                         This auction has ended.{" "}
+//                         {item.currentBidder
 //                           ? `The winning bidder was ${item.currentBidder}.`
 //                           : "There were no bids on this item."}
 //                       </p>
 //                     </div>
 //                   )}
-
 //                   <p className="text-xs text-gray-600 pt-4">
-//                     As the item owner, you can edit the item details until the auction starts. Once the auction begins, no changes can be made.
+//                     As the item owner, you can edit the item details until the
+//                     auction starts. Once the auction begins, no changes can be
+//                     made.
 //                   </p>
 //                 </div>
 //               </div>

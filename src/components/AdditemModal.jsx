@@ -7,11 +7,11 @@ const AddItemModal = ({ onClose, onSubmit }) => {
   const [error, setError] = useState(null);
   const [formErrors, setFormErrors] = useState({});
 
-  const calculateEndTime = (durationInMinutes) => {
-    const endDate = new Date();
-    endDate.setMinutes(endDate.getMinutes() + parseInt(durationInMinutes));
-    return endDate.toISOString();
-  };
+  // const calculateEndTime = (durationInMinutes) => {
+  //   const endDate = new Date();
+  //   endDate.setMinutes(endDate.getMinutes() + parseInt(durationInMinutes));
+  //   return endDate.toISOString();
+  // };
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -22,10 +22,10 @@ const AddItemModal = ({ onClose, onSubmit }) => {
     try {
       const formData = new FormData(event.target);
       
-      // Convert duration to endTime (now in minutes)
-      const duration = formData.get('duration');
-      formData.delete('duration'); // Remove duration as backend doesn't use it directly
-      formData.append('endTime', calculateEndTime(duration));
+      // // Convert duration to endTime (now in minutes)
+      // const duration = formData.get('duration');
+      // formData.delete('duration'); // Remove duration as backend doesn't use it directly
+      // formData.append('endTime', calculateEndTime(duration));
       
       // Convert startingBid to a number
       const startingBid = formData.get('startingBid');
@@ -133,7 +133,7 @@ const AddItemModal = ({ onClose, onSubmit }) => {
             )}
           </div>
 
-          <div>
+          {/* <div>
             <label htmlFor="startTime" className="block text-sm font-medium text-gray-700">
               Start time*
             </label>
@@ -149,10 +149,10 @@ const AddItemModal = ({ onClose, onSubmit }) => {
             <p className="text-xs text-gray-500 mt-1">
              Start Time
             </p>
-          </div>
+          </div> */}
 
           {/* Duration - Will be converted to endTime */}
-          <div>
+          {/* <div>
             <label htmlFor="duration" className="block text-sm font-medium text-gray-700">
               Duration (in minutes)*
             </label>
@@ -168,7 +168,7 @@ const AddItemModal = ({ onClose, onSubmit }) => {
             <p className="text-xs text-gray-500 mt-1">
               Enter how long the auction should run in minutes (e.g. 5, 15, 30, 60)
             </p>
-          </div>
+          </div> */}
 
           {/* Category */}
           <div>

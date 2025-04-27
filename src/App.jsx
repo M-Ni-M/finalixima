@@ -10,7 +10,7 @@ import PurchasePage from "./pages/PurchasePage";
 import BidderPage from "./pages/BidderPage";
 import VerifyEmailPage from "./Auth/verifyPage";
 import ProtectedRoute from "./protectedRoute";
-import GoogleCallback from "../public/GoogleCallback";
+import GoogleCallback from "./Auth/GoogleCallback";
 import ResetPassword from "./Auth/resetPassword";
 import ForgotPassword from "./Auth/forgetPassword";
 import OwnerProductDetail from "./pages/ownerProductDetail";
