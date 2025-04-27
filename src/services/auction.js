@@ -51,3 +51,11 @@ export const apiGetAuctionById = (id) => {
     },
   });
 };
+
+export const apiStartAuction = (id) => {
+  return apiClient.post(`/start-auction/${id}`, {
+    headers: {
+      "Content-Type" : "application/json"
+    }
+  })
+}
